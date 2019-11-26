@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- can't split long messages between lines -->
+    <suppress checks="HideUtilityClassConstructor" files="WriterpadApplication.java" />
+    <suppress checks="NewlineAtEndOfFile" files="WriterpadApplication.java"/>
+    <suppress checks="NewlineAtEndOfFile" files="application.properties"/>
+    <!-- don't validate generated files -->
+
+
+</suppressions>

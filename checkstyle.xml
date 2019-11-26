@@ -4,8 +4,11 @@
         "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
-    <module name="SuppressWarningsFilter"/>
-<!--    <module name="NewlineAtEndOfFile"/>-->
+<!--    <module name="SuppressWarningsFilter"/>-->
+    <module name="NewlineAtEndOfFile"/>
+    <module name="SuppressionFilter">
+        <property name="file" value="suppressions.xml"/>
+    </module>
     <module name="FileLength"/>
     <module name="FileTabCharacter"/>
 
@@ -129,7 +132,7 @@
         <!-- See http://checkstyle.sf.net/config_design.html -->
         <!--module name="DesignForExtension"/-->
         <!--<module name="FinalClass"/>-->
-<!--        <module name="HideUtilityClassConstructor"/>-->
+        <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
         <!--module name="VisibilityModifier"/-->
 
