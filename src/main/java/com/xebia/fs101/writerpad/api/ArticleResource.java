@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpServerErrorException;
 
 import javax.validation.Valid;
 
@@ -26,13 +25,10 @@ public class ArticleResource {
     @PostMapping
     public ResponseEntity<Article> create(@Valid @RequestBody ArticleRequest articleRequest) {
 
-        try {
-            Article savedArticle = articleService.addArticle(articleRequest);
-            System.out.println("Data saved successfully");
-            return new ResponseEntity<Article>(savedArticle, HttpStatus.CREATED);
-        } catch (HttpServerErrorException.InternalServerError e) {
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Article savedArticle = articleService.addArticle(articleRequest);
+        System.out.println("Data saved successfully");
+        return new ResponseEntity<Article>(savedArticle, HttpStatus.CREATED);
+
     }
 
 }

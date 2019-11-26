@@ -56,8 +56,7 @@ class ArticleResourceTest {
         String json="{\n" +
                 "  \"title\": \"How to learn Spring Booot\",\n" +
                 "  \"description\": \"Ever wonder how?\",\n" +
-                "  \"body\": \"You have to believe\",\n" +
-                "  \"tags\": [\"java\", \"Spring Boot\", \"tutorial\"]\n" +
+                "  \"body\": \"You have to believe\"\n" +
                 "}";
         mockMvc.perform(post("/api/articles")
                 .accept(MediaType.APPLICATION_JSON)
