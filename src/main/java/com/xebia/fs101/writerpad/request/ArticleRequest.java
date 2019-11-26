@@ -1,17 +1,19 @@
-package com.xebia.fs101.writerpad.model;
+package com.xebia.fs101.writerpad.request;
 
-import org.springframework.stereotype.Component;
-
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@Component
+
 public class ArticleRequest {
 
+    @NotNull @NotEmpty
     private String title;
+    @NotNull @NotEmpty
     private String description;
+    @NotNull @NotEmpty
     private String body;
     private List<String> tags;
-    private String featuredImage;
 
     public ArticleRequest() {
     }
@@ -21,7 +23,6 @@ public class ArticleRequest {
         description = builder.description;
         body = builder.body;
         tags = builder.tags;
-        featuredImage = builder.featuredImage;
     }
 
     public String getTitle() {
@@ -40,16 +41,12 @@ public class ArticleRequest {
         return tags;
     }
 
-    public String getFeaturedImage() {
-        return featuredImage;
-    }
 
     public static final class Builder {
         private String title;
         private String description;
         private String body;
         private List<String> tags;
-        private String featuredImage;
 
         public Builder() {
         }
@@ -75,10 +72,7 @@ public class ArticleRequest {
             return this;
         }
 
-        public Builder withFeaturedImage(String featuredImage) {
-            this.featuredImage = featuredImage;
-            return this;
-        }
+
 
         public ArticleRequest build() {
             return new ArticleRequest(this);

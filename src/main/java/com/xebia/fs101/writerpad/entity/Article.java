@@ -22,6 +22,28 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+
+
+    private String slug;
+    @NotNull
+    private String title;
+    @NotNull
+    private String description;
+    @NotNull
+    private String body;
+
+    @ElementCollection
+    private List<String> tagList = new ArrayList<>();
+
+    @Column(name = "created_at", updatable = false)
+    @CreationTimestamp
+    private Date createdAt;
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    private Date updatedAt;
+    private boolean favorited = false;
+    private  int favouriteCount = 0;
+
     public UUID getId() {
         return id;
     }
@@ -54,33 +76,13 @@ public class Article {
         return updatedAt;
     }
 
-    public boolean isFavourited() {
-        return favourited;
+    public boolean isFavorited() {
+        return favorited;
     }
 
     public int getFavouriteCount() {
         return favouriteCount;
     }
-
-    private String slug;
-    @NotNull
-    private String title;
-    @NotNull
-    private String description;
-    @NotNull
-    private String body;
-
-    @ElementCollection
-    private List<String> tagList = new ArrayList<>();
-
-    @Column(name = "created_at", updatable = false)
-    @CreationTimestamp
-    private Date createdAt;
-    @Column(name = "updated_at")
-    @UpdateTimestamp
-    private Date updatedAt;
-    private boolean favourited = false;
-    private  int favouriteCount = 0;
 
 
 
@@ -93,7 +95,7 @@ public class Article {
         createdAt = builder.createdAt;
         updatedAt = builder.updatedAt;
         favouriteCount = builder.favouriteCount;
-        favourited = builder.favourited;
+        favorited = builder.favorited;
         description = builder.description;
         slug = builder.slug;
 
@@ -109,7 +111,7 @@ public class Article {
         private List<String> tagList;
         private Date createdAt;
         private Date updatedAt;
-        private boolean favourited = false;
+        private boolean favorited = false;
         private  int favouriteCount = 0;
 
         public Builder() {
@@ -156,8 +158,8 @@ public class Article {
             return this;
         }
 
-        public Builder withFavourited(boolean favourited) {
-            this.favourited = favourited;
+        public Builder withFavorited(boolean favorited) {
+            this.favorited = favorited;
             return this;
         }
 
