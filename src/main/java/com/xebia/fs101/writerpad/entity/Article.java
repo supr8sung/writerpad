@@ -1,55 +1,63 @@
 package com.xebia.fs101.writerpad.entity;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import com.xebia.fs101.writerpad.utils.StringUtils;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Column;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.ElementCollection;
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.OneToMany;
+import javax.persistence.GenerationType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+
 import java.util.List;
 import java.util.UUID;
+import java.util.Date;
+import java.util.Objects;
+import java.util.ArrayList;
+
+
+
+import static java.util.stream.Collectors.toList;
+
 
 @Entity
+@Table(name = "articles")
 public class Article {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-
-
-
+    @Transient
     private String slug;
-    @NotNull
     private String title;
-    @NotNull
     private String description;
-    @NotNull
     private String body;
-
     @ElementCollection
-    private List<String> tagList = new ArrayList<>();
-
-    @Column(name = "created_at", updatable = false)
-    @CreationTimestamp
+    private List<String> tags;
+    @Column(updatable = false, nullable = false)
     private Date createdAt;
-    @Column(name = "updated_at")
-    @UpdateTimestamp
     private Date updatedAt;
-    private boolean favorited = false;
-    private  int favouriteCount = 0;
+    private boolean favorited;
+    private long favoritesCount;
+    @OneToMany(mappedBy = "article")
+    private List<Comment> comment;
+
+    public Article() {
+    }
 
     public UUID getId() {
         return id;
     }
 
     public String getSlug() {
-        return slug;
+        return StringUtils.slugify(this.title);
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getTitle() {
@@ -64,8 +72,8 @@ public class Article {
         return body;
     }
 
-    public List<String> getTagList() {
-        return tagList;
+    public List<String> getTags() {
+        return tags;
     }
 
     public Date getCreatedAt() {
@@ -80,27 +88,40 @@ public class Article {
         return favorited;
     }
 
-    public int getFavouriteCount() {
-        return favouriteCount;
+    public long getFavoritesCount() {
+        return favoritesCount;
     }
 
-
-
+    public Article update(Article changedArticle) {
+        if (Objects.nonNull(changedArticle.getTitle())) {
+            this.title = changedArticle.getTitle();
+        }
+        if (Objects.nonNull(changedArticle.getBody())) {
+            this.body = changedArticle.getBody();
+        }
+        if (Objects.nonNull(changedArticle.getDescription())) {
+            this.description = changedArticle.getDescription();
+        }
+        if (Objects.nonNull(changedArticle.getTags())
+                && changedArticle.getTags().size() > 0) {
+            this.tags = changedArticle.getTags();
+        }
+        this.updatedAt = new Date();
+        return this;
+    }
 
     public Article(Builder builder) {
         id = builder.id;
-        tagList = builder.tagList;
+        tags = builder.tags;
         title = builder.title;
         body = builder.body;
-        createdAt = builder.createdAt;
-        updatedAt = builder.updatedAt;
-        favouriteCount = builder.favouriteCount;
+        createdAt = new Date();
+        updatedAt = new Date();
+        favoritesCount = builder.favoritesCount;
         favorited = builder.favorited;
         description = builder.description;
-        slug = builder.slug;
-
+        slug = StringUtils.slugify(this.title);
     }
-
 
     public static final class Builder {
         private UUID id;
@@ -108,23 +129,17 @@ public class Article {
         private String title;
         private String description;
         private String body;
-        private List<String> tagList;
+        private List<String> tags;
         private Date createdAt;
         private Date updatedAt;
         private boolean favorited = false;
-        private  int favouriteCount = 0;
+        private long favoritesCount = 0;
 
         public Builder() {
         }
 
-
         public Builder withId(UUID id) {
             this.id = id;
-            return this;
-        }
-
-        public Builder withSlug(String slug) {
-            this.slug = slug;
             return this;
         }
 
@@ -143,18 +158,9 @@ public class Article {
             return this;
         }
 
-        public Builder withTagList(List<String> tagList) {
-            this.tagList = tagList;
-            return this;
-        }
-
-        public Builder withCreatedAt(Date createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-
-        public Builder withUpdatedAt(Date updatedAt) {
-            this.updatedAt = updatedAt;
+        public Builder withTags(List<String> tags) {
+            this.tags = tags == null
+                    ? new ArrayList<>() : tags.stream().map(StringUtils::slugify).collect(toList());
             return this;
         }
 
@@ -163,13 +169,12 @@ public class Article {
             return this;
         }
 
-        public Builder withFavouriteCount(int favouriteCount) {
-            this.favouriteCount = favouriteCount;
+        public Builder withFavoritesCount(long favoritesCount) {
+            this.favoritesCount = favoritesCount;
             return this;
         }
 
         public Article build() {
-
             return new Article(this);
         }
     }

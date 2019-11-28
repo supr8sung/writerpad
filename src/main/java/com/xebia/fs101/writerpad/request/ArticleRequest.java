@@ -1,5 +1,7 @@
 package com.xebia.fs101.writerpad.request;
 
+import com.xebia.fs101.writerpad.entity.Article;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -8,11 +10,14 @@ import java.util.List;
 
 public class ArticleRequest {
 
-    @NotNull @NotEmpty
+    @NotNull
+    @NotEmpty
     private String title;
-    @NotNull @NotEmpty
+    @NotNull
+    @NotEmpty
     private String description;
-    @NotNull @NotEmpty
+    @NotNull
+    @NotEmpty
     private String body;
     private List<String> tags;
 
@@ -74,9 +79,17 @@ public class ArticleRequest {
         }
 
 
-
         public ArticleRequest build() {
             return new ArticleRequest(this);
         }
+    }
+
+    public Article toArticle() {
+        return new Article.Builder()
+                .withBody(this.getBody())
+                .withTitle(this.getTitle())
+                .withDescription(this.getDescription())
+                .withTags(this.tags)
+                .build();
     }
 }
