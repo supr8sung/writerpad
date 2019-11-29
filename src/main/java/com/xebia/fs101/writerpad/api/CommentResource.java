@@ -33,7 +33,6 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequestMapping(path = "/api/articles/")
 public class CommentResource {
-
     @Autowired
     private CommentService commentService;
     @Autowired
@@ -58,7 +57,7 @@ public class CommentResource {
         Optional<Article> article = articleService.findOne(slugId);
         if (article.isPresent()) {
             Comment comment = commentRequest.toComment(article.get(), request.getRemoteAddr());
-            Comment postedComment = commentService.postComment(id, comment);
+            Comment postedComment = commentService.postComment(comment);
             return ResponseEntity.status(CREATED).build();
         }
         return ResponseEntity.status(NOT_FOUND).build();
@@ -66,6 +65,7 @@ public class CommentResource {
 
     @GetMapping(path = "{slug_id}/comments")
     public ResponseEntity<List<Comment>> get(@PathVariable(value = "slug_id") String slugId) {
+
         UUID id = StringUtils.extractUuid(slugId);
         Optional<Article> article = articleService.findOne(slugId);
         if (article.isPresent()) {
@@ -80,7 +80,6 @@ public class CommentResource {
             @PathVariable(value = "slug_id") String slugId,
             @PathVariable(value = "id") Long id) {
 
-
         Optional<Article> optionalArticle = this.articleService.findOne(slugId);
         if (optionalArticle.isPresent()) {
             return this.commentService.deleteComment(id) ? ResponseEntity.status(NO_CONTENT).build()
@@ -88,6 +87,5 @@ public class CommentResource {
         }
         return ResponseEntity.status(NOT_FOUND).build();
     }
-
 
 }

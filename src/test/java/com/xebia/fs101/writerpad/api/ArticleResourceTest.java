@@ -18,7 +18,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,16 +29,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class ArticleResourceTest {
-
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
-
     @Autowired
     private ArticleRepository articleRepository;
+
     @AfterEach
     void tearDown() {
         articleRepository.deleteAll();
@@ -53,7 +53,6 @@ class ArticleResourceTest {
                 .andDo(print())
                 .andExpect(
                         status().isBadRequest());
-
     }
 
     @Test
@@ -61,16 +60,14 @@ class ArticleResourceTest {
         articleRepository.count();
     }
 
-
     @Test
     void should_be_able_to_add_article_and_give_status_as_201() throws Exception {
-
-        ArticleRequest articleRequest=new ArticleRequest.Builder()
+        ArticleRequest articleRequest = new ArticleRequest.Builder()
                 .withTitle("title")
                 .withBody("body")
                 .withDescription("description")
                 .build();
-        String json=objectMapper.writeValueAsString(articleRequest);
+        String json = objectMapper.writeValueAsString(articleRequest);
         mockMvc.perform(post("/api/articles")
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json)
@@ -80,13 +77,12 @@ class ArticleResourceTest {
 
     @Test
     void should_give_status_bad_request_when_required_fields_are_missing_for_creating_article() throws Exception {
-
-        ArticleRequest articleRequest= new ArticleRequest.Builder()
+        ArticleRequest articleRequest = new ArticleRequest.Builder()
                 .withTitle("")
                 .withDescription("description")
                 .withBody("body")
                 .build();
-        String json=objectMapper.writeValueAsString(articleRequest);
+        String json = objectMapper.writeValueAsString(articleRequest);
         mockMvc.perform(post("/api/articles")
                 .accept(MediaType.APPLICATION_JSON)
                 .content(json)
@@ -94,18 +90,14 @@ class ArticleResourceTest {
                 .andExpect(status().isBadRequest());
     }
 
-
-
     @Test
     void should_give_updated_article_after_patch_request() throws Exception {
-
         ArticleRequest updateArticle = new ArticleRequest.Builder()
                 .withBody(" body")
                 .withTitle("title")
                 .withDescription("description")
                 .build();
         String json = objectMapper.writeValueAsString(updateArticle);
-
         Article article = new Article.Builder()
                 .withBody("abc")
                 .withDescription("efef")
@@ -122,26 +114,19 @@ class ArticleResourceTest {
                 .andExpect(jsonPath("$.updatedAt", CoreMatchers.not(saved.getUpdatedAt())));
     }
 
-
-
-
-
     @Test
     public void shoulde_be_able_to_delete_an_article() throws Exception {
-
         Article article = new Article.Builder()
                 .withBody("abc")
                 .withDescription("efef")
                 .withTitle("fefe")
                 .build();
         Article saved = articleRepository.save(article);
-        String id = String.format("%s_%s", saved.getSlug(),saved.getId());
-        this.mockMvc.perform(delete("/api/articles/{id}",id))
+        String id = String.format("%s_%s", saved.getSlug(), saved.getId());
+        this.mockMvc.perform(delete("/api/articles/{id}", id))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-
     }
-
 
     @Test
     void get_article_for_an_id() throws Exception {
@@ -151,16 +136,15 @@ class ArticleResourceTest {
                 .withTitle("ekmfemef")
                 .build();
         Article saved = articleRepository.save(article);
-        String id = String.format("%s_%s", saved.getSlug(),saved.getId());
-                mockMvc.perform(get("/api/articles/{slug_id}", id))
-                        .andDo(print())
+        String id = String.format("%s_%s", saved.getSlug(), saved.getId());
+        mockMvc.perform(get("/api/articles/{slug_id}", id))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("ekmfemef"))
                 .andExpect(jsonPath("$.body").value("efeef"))
                 .andExpect(jsonPath("$.description").value("effe"));
-
-
     }
+
     @Test
     void should_list_all_articles() throws Exception {
         Article article1 = createArticle("Title1", "Description1", "body1");
@@ -172,6 +156,7 @@ class ArticleResourceTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3));
     }
+
     @Test
     void should_list_all_articles_with_pagination() throws Exception {
         Article article1 = createArticle("Title1", "Description1", "body1");
@@ -190,9 +175,7 @@ class ArticleResourceTest {
                 .withBody(body)
                 .withDescription(description)
                 .build();
-
         return article;
     }
-
 
 }

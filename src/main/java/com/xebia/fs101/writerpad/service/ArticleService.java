@@ -18,7 +18,6 @@ public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
-
     public Article add(ArticleRequest articleRequest) {
 
         Article article = new Article.Builder().withTitle(articleRequest.getTitle())
@@ -32,15 +31,14 @@ public class ArticleService {
         return savedArticle;
     }
 
-
     public Page<Article> findAll(Pageable pageable) {
+
         return articleRepository.findAll(pageable);
     }
 
-
     public Optional<Article> findOne(String slugId) {
-        UUID id = StringUtils.extractUuid(slugId);
 
+        UUID id = StringUtils.extractUuid(slugId);
         Optional<Article> optionalArticle = articleRepository.findById(id);
         if (!optionalArticle.isPresent())
             return Optional.empty();
@@ -48,29 +46,25 @@ public class ArticleService {
     }
 
     public boolean delete(String slugId) {
+
         UUID id = StringUtils.extractUuid(slugId);
         if (articleRepository.findById(id).isPresent()) {
             articleRepository.deleteById(id);
             return true;
         }
         return false;
-
     }
-
 
     public Optional<Article> update(String slugId, Article copyFrom) {
+
         UUID id = StringUtils.extractUuid(slugId);
-
         Optional<Article> optionalArticle = articleRepository.findById(id);
-        if (!optionalArticle.isPresent()) {
-            return Optional.empty();
+        if (optionalArticle.isPresent()) {
+            Article article = optionalArticle.get();
+            Article articleToBeUpdated = article.update(copyFrom);
+            return Optional.of(articleRepository.save(articleToBeUpdated));
         }
-        Article article = optionalArticle.get();
-        Article articleToBeUpdated = article.update(copyFrom);
-        return Optional.of(articleRepository.save(articleToBeUpdated));
-
-
+        return Optional.empty();
     }
-
 
 }

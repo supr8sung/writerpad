@@ -8,6 +8,4 @@ import java.util.UUID;
 
 @Component
 public interface ArticleRepository extends JpaRepository<Article, UUID> {
-
-
 }

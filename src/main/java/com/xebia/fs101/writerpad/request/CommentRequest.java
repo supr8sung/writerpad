@@ -10,21 +10,26 @@ public class CommentRequest {
     private String body;
 
     public String getBody() {
+
         return body;
     }
 
     public CommentRequest() {
+
     }
 
     public CommentRequest(@NotBlank String body) {
+
         this.body = body;
     }
 
     public Comment toComment(Article article, String ipAdress) {
+
         return new Comment.Builder()
                 .withBody(this.getBody())
                 .withIpAddress(ipAdress)
                 .withArticle(article)
                 .build();
     }
+
 }

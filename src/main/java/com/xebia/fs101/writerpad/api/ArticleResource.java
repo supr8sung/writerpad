@@ -1,6 +1,5 @@
 package com.xebia.fs101.writerpad.api;
 
-
 import com.xebia.fs101.writerpad.entity.Article;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.service.ArticleService;
@@ -28,15 +27,14 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequestMapping("/api/articles")
 public class ArticleResource {
-
     @Autowired
     private ArticleService articleService;
-
     @Autowired
     private CommentService commentService;
 
     @GetMapping
     public ResponseEntity<List<Article>> getAll(Pageable pageable) {
+
         Page<Article> pageResult = articleService.findAll(pageable);
         if (!pageResult.hasContent()) {
             ResponseEntity.noContent().build();
@@ -47,6 +45,7 @@ public class ArticleResource {
 
     @PostMapping
     public ResponseEntity<Article> create(@Valid @RequestBody ArticleRequest articleRequest) {
+
         Article savedArticle = articleService.add(articleRequest);
         System.out.println("Data saved successfully");
         return new ResponseEntity<Article>(savedArticle, HttpStatus.CREATED);
@@ -54,6 +53,7 @@ public class ArticleResource {
 
     @GetMapping(path = "/{slug_id}")
     public ResponseEntity<Article> getById(@PathVariable(value = "slug_id") String slugId) {
+
         Optional<Article> article = articleService.findOne(slugId);
         if (!article.isPresent())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -74,11 +74,11 @@ public class ArticleResource {
     public ResponseEntity<Article> update(
             @RequestBody ArticleRequest articleRequest,
             @PathVariable(value = "slug_id") String slugId) {
+
         Article article = articleRequest.toArticle();
         Optional<Article> updatedArticle = articleService.update(slugId, article);
         return updatedArticle.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
-
 
 }
 
