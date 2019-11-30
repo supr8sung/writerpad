@@ -1,10 +1,13 @@
 package com.xebia.fs101.writerpad.entity;
 
+import com.xebia.fs101.writerpad.model.ArticleStatus;
 import com.xebia.fs101.writerpad.utils.StringUtils;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,6 +40,8 @@ public class Article {
     private Date updatedAt;
     private boolean favorited;
     private long favoritesCount;
+    @Enumerated(EnumType.STRING)
+    private ArticleStatus status;
     @OneToMany(mappedBy = "article")
     private List<Comment> comment;
 
@@ -62,6 +67,11 @@ public class Article {
     public String getTitle() {
 
         return title;
+    }
+
+    public ArticleStatus getStatus() {
+
+        return status;
     }
 
     public String getDescription() {
@@ -118,6 +128,12 @@ public class Article {
         return this;
     }
 
+    public Article publish() {
+
+        this.status = ArticleStatus.PUBLISHED;
+        return this;
+    }
+
     public Article(Builder builder) {
 
         id = builder.id;
@@ -130,6 +146,7 @@ public class Article {
         favorited = builder.favorited;
         description = builder.description;
         slug = StringUtils.slugify(this.title);
+        status = ArticleStatus.DRAFT;
     }
 
     public static final class Builder {
@@ -141,6 +158,7 @@ public class Article {
         private List<String> tags;
         private Date createdAt;
         private Date updatedAt;
+        public ArticleStatus status;
         private boolean favorited = false;
         private long favoritesCount = 0;
 
@@ -188,6 +206,12 @@ public class Article {
         public Builder withFavoritesCount(long favoritesCount) {
 
             this.favoritesCount = favoritesCount;
+            return this;
+        }
+
+        public Builder withStatus(ArticleStatus val) {
+
+            this.status = val;
             return this;
         }
 

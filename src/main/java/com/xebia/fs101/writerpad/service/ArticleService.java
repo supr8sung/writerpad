@@ -1,17 +1,22 @@
 package com.xebia.fs101.writerpad.service;
 
 import com.xebia.fs101.writerpad.entity.Article;
+import com.xebia.fs101.writerpad.model.ArticleStatus;
 import com.xebia.fs101.writerpad.repository.ArticleRepository;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @Service
 public class ArticleService {
@@ -34,6 +39,15 @@ public class ArticleService {
     public Page<Article> findAll(Pageable pageable) {
 
         return articleRepository.findAll(pageable);
+    }
+
+    //    public Page<Article> findAllByStatus(ArticleStatus status, Pageable pageable) {
+//
+//        return articleRepository.findAllByStatus(status, pageable);
+//    }
+    public Page<Article> findAllByStatus(ArticleStatus status, Pageable pageable) {
+
+        return articleRepository.findAllByStatus(status, pageable);
     }
 
     public Optional<Article> findOne(String slugId) {
@@ -65,6 +79,15 @@ public class ArticleService {
             return Optional.of(articleRepository.save(articleToBeUpdated));
         }
         return Optional.empty();
+    }
+
+    public ResponseEntity<Void> publish(Article articleToPublish) {
+
+        if (articleToPublish.getStatus() == ArticleStatus.PUBLISHED)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        //Article publish = articleToPublish.publish();
+        articleRepository.publishArticle(ArticleStatus.PUBLISHED, articleToPublish.getId());
+        return ResponseEntity.status(NO_CONTENT).build();
     }
 
 }

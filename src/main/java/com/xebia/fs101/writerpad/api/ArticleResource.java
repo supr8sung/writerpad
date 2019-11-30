@@ -1,6 +1,7 @@
 package com.xebia.fs101.writerpad.api;
 
 import com.xebia.fs101.writerpad.entity.Article;
+import com.xebia.fs101.writerpad.model.ArticleStatus;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.service.ArticleService;
 import com.xebia.fs101.writerpad.service.CommentService;
@@ -16,13 +17,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
 @RequestMapping("/api/articles")
@@ -39,6 +44,19 @@ public class ArticleResource {
         if (!pageResult.hasContent()) {
             ResponseEntity.noContent().build();
         }
+        List<Article> articles = pageResult.getContent();
+        return new ResponseEntity<>(articles, OK);
+    }
+
+    @RequestMapping(path = "/{status}", params = "status", method = GET)
+    public ResponseEntity<List<Article>> getAllByStatus(
+            @RequestParam(value = "status", required = false) String status, Pageable pageable) {
+
+        Page<Article> pageResult =
+                articleService.findAllByStatus(
+                        ArticleStatus.valueOf(status.toUpperCase()), pageable);
+        if (!pageResult.hasContent())
+            return ResponseEntity.status(NO_CONTENT).build();
         List<Article> articles = pageResult.getContent();
         return new ResponseEntity<>(articles, OK);
     }
@@ -78,6 +96,17 @@ public class ArticleResource {
         Article article = articleRequest.toArticle();
         Optional<Article> updatedArticle = articleService.update(slugId, article);
         return updatedArticle.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping(path = "/{slug_id}/{status}")
+    public ResponseEntity<Void> publish(
+            @PathVariable(value = "slug_id") String slugId
+            , @PathVariable(value = "status") String status) {
+
+        Optional<Article> article = articleService.findOne(slugId);
+        if (article.isPresent())
+            return articleService.publish(article.get());
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).build();
     }
 
 }
