@@ -177,13 +177,16 @@ class ArticleResourceTest {
         Article article2 = createArticle("title2", "body2", "description2");
         Article article3 = createArticle("title3", "body3", "description3");
         articleRepository.saveAll(Arrays.asList(article1, article2, article3));
-        this.mockMvc.perform(get("/api/articles/status/?status=DRAFT"))
+        this.mockMvc.perform(get("/api/articles/?status=DRAFT"))
                 .andDo(print())
                 .andExpect(jsonPath("$.length()").value(3));
         articleService.publish(article2);
-        this.mockMvc.perform(get("/api/articles/status?status=DRAFT"))
+        this.mockMvc.perform(get("/api/articles/?status=DRAFT"))
                 .andDo(print())
                 .andExpect(jsonPath("$.length()").value(2));
+        this.mockMvc.perform(get("/api/articles/?status=PUBLISHED"))
+                .andDo(print())
+                .andExpect(jsonPath("$.length()").value(1));
     }
 
     @Test
@@ -197,7 +200,7 @@ class ArticleResourceTest {
         articleRepository.saveAll(Arrays.asList(article1, article2, article3, article4, article5));
         articleService.publish(article2);
         articleService.publish(article3);
-        this.mockMvc.perform(get("/api/articles/status/?status=DRAFT&size=2"))
+        this.mockMvc.perform(get("/api/articles/?status=DRAFT&size=2"))
                 .andDo(print())
                 .andExpect(jsonPath("$.length()").value(2));
     }

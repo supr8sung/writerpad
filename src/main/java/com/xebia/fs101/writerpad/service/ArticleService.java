@@ -23,6 +23,9 @@ public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public Article add(ArticleRequest articleRequest) {
 
         Article article = new Article.Builder().withTitle(articleRequest.getTitle())
@@ -41,10 +44,6 @@ public class ArticleService {
         return articleRepository.findAll(pageable);
     }
 
-    //    public Page<Article> findAllByStatus(ArticleStatus status, Pageable pageable) {
-//
-//        return articleRepository.findAllByStatus(status, pageable);
-//    }
     public Page<Article> findAllByStatus(ArticleStatus status, Pageable pageable) {
 
         return articleRepository.findAllByStatus(status, pageable);
@@ -85,8 +84,10 @@ public class ArticleService {
 
         if (articleToPublish.getStatus() == ArticleStatus.PUBLISHED)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        //Article publish = articleToPublish.publish();
-        articleRepository.publishArticle(ArticleStatus.PUBLISHED, articleToPublish.getId());
+        articleRepository.updateStatus(ArticleStatus.PUBLISHED, articleToPublish.getId());
+//        emailService.sendMail("supreet.singh@xebia.com"
+//                ,"Congratulations"
+//        ,"Hello dost, your blog has been successfully published");
         return ResponseEntity.status(NO_CONTENT).build();
     }
 

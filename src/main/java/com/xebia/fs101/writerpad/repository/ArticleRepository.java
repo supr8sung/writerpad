@@ -21,6 +21,6 @@ public interface ArticleRepository extends JpaRepository<Article, UUID> {
 
     @Modifying
     @Query("UPDATE Article a SET a.status=:publish where a.id=:articleId")
-    int publishArticle(@Param("publish") ArticleStatus status, @Param("articleId") UUID id);
+    int updateStatus(@Param("publish") ArticleStatus status, @Param("articleId") UUID id);
 
 }

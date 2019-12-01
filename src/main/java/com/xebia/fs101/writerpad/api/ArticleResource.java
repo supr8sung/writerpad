@@ -48,9 +48,9 @@ public class ArticleResource {
         return new ResponseEntity<>(articles, OK);
     }
 
-    @RequestMapping(path = "/{status}", params = "status", method = GET)
+    @RequestMapping(params = "status", method = GET)
     public ResponseEntity<List<Article>> getAllByStatus(
-            @RequestParam(value = "status", required = false) String status, Pageable pageable) {
+            @RequestParam(value = "status", required = true) String status, Pageable pageable) {
 
         Page<Article> pageResult =
                 articleService.findAllByStatus(
