@@ -41,9 +41,8 @@ public class ArticleResource {
     public ResponseEntity<List<Article>> getAll(Pageable pageable) {
 
         Page<Article> pageResult = articleService.findAll(pageable);
-        if (!pageResult.hasContent()) {
-            ResponseEntity.noContent().build();
-        }
+        if (!pageResult.hasContent())
+            ResponseEntity.status(NO_CONTENT).build();
         List<Article> articles = pageResult.getContent();
         return new ResponseEntity<>(articles, OK);
     }
@@ -99,7 +98,7 @@ public class ArticleResource {
     }
 
     @PostMapping(path = "/{slug_id}/{status}")
-    public ResponseEntity<Void> publish(
+    public ResponseEntity<Void> updateStatus(
             @PathVariable(value = "slug_id") String slugId
             , @PathVariable(value = "status") String status) {
 

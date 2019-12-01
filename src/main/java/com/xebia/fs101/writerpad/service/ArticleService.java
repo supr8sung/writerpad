@@ -22,7 +22,6 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
-
     @Autowired
     private EmailService emailService;
 
@@ -85,9 +84,13 @@ public class ArticleService {
         if (articleToPublish.getStatus() == ArticleStatus.PUBLISHED)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         articleRepository.updateStatus(ArticleStatus.PUBLISHED, articleToPublish.getId());
-//        emailService.sendMail("supreet.singh@xebia.com"
-//                ,"Congratulations"
-//        ,"Hello dost, your blog has been successfully published");
+        try {
+            emailService.sendMail("supreet.singh@xebia.com"
+                    , "Congratulations"
+                    , "Hello dost, your blog has been successfully published");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return ResponseEntity.status(NO_CONTENT).build();
     }
 

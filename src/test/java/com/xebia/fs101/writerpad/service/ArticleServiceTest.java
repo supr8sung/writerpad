@@ -26,7 +26,7 @@ class ArticleServiceTest {
     private ArticleService articleService;
 
     @Test
-    void should_be_able_to_post_an_article() {
+    void should_be_able_to_save_an_article() {
 
         ArticleRequest articleRequest = new ArticleRequest.Builder()
                 .withBody("body")
@@ -65,25 +65,25 @@ class ArticleServiceTest {
     }
 
 //    @Test
-////    public void should_be_able_to_update_an_article(){
-////        Article article = new Article.Builder()
-////                .withBody("abc")
-////                .withDescription("efef")
-////                .withTitle("fefe")
-////                .build();
-////
-////        ArticleRequest updateArticle = new ArticleRequest.Builder()
-////                .withBody(" body")
-////                .withTitle("title")
-////                .withDescription("description")
-////                .build();
-////        when(articleRepository.findById(any())).thenReturn(Optional.of(new Article()));
-////        articleService.update("id"+UUID.randomUUID(),any());
-////        verify(articleRepository).findById(any());
-////        verify(articleRepository).save(any());
-////        verifyNoMoreInteractions(articleRepository);
-////
-////    }
+//    public void should_be_able_to_update_an_article(){
+//        Article article = new Article.Builder()
+//                .withBody("abc")
+//                .withDescription("efef")
+//                .withTitle("fefe")
+//                .build();
+//
+//        ArticleRequest updateArticle = new ArticleRequest.Builder()
+//                .withBody(" body")
+//                .withTitle("title")
+//                .withDescription("description")
+//                .build();
+//        when(articleRepository.findById(any())).thenReturn(Optional.ofNullable(new Article.Builder().withTitle("efe").build()));
+//        articleService.update("id"+UUID.randomUUID(),article);
+//        verify(articleRepository).findById(UUID.randomUUID());
+//        //verify(articleRepository).save(any());
+//        verifyNoMoreInteractions(articleRepository);
+//
+//    }
 
 
 
