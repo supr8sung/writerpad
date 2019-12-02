@@ -8,8 +8,6 @@ import com.xebia.fs101.writerpad.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +15,12 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.xebia.fs101.writerpad.model.ArticleStatus.*;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static com.xebia.fs101.writerpad.model.ArticleStatus.PUBLISHED;
 
 @Service
 public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
-
     @Autowired
     private EmailService emailService;
 
@@ -82,29 +78,23 @@ public class ArticleService {
         return Optional.empty();
     }
 
-    public Optional<Article> publish(String slugId) {
+    public Optional<Article> publish(Article article) {
 
-        Optional<Article> publishedArticle=null;
-        UUID id=StringUtils.extractUuid(slugId);
-        Optional<Article> article = articleRepository.findById(id);
+        Optional<Article> publishedArticle = null;
         try {
             emailService.sendMail("supreet.singh@xebia.com"
                     , "Congratulations"
                     , "Hello dost, your blog has been successfully published");
-        }
-        catch (MailException e){
+        } catch (MailException e) {
             e.printStackTrace();
         }
-        if (article.isPresent())
-            if (article.get().getStatus() == PUBLISHED)
-                publishedArticle= Optional.empty();
-            else {
-                    articleRepository.updateStatus(PUBLISHED,id);
-                publishedArticle = Optional.of(article.get());
-            }
-            return publishedArticle;
+        if (article.getStatus() == PUBLISHED)
+            publishedArticle = Optional.empty();
+        else {
+            articleRepository.updateStatus(PUBLISHED, article.getId());
+            publishedArticle = Optional.of(article);
+        }
+        return publishedArticle;
     }
-
-
 
 }

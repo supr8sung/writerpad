@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -102,9 +103,15 @@ public class ArticleResource {
             @PathVariable(value = "slug_id") String slugId
             , @PathVariable(value = "status") String status) {
 
-        if (articleService.publish(slugId).isPresent())
-            return ResponseEntity.status(NO_CONTENT).build();
-        return ResponseEntity.status(BAD_REQUEST).build();
+        Optional<Article> article = articleService.findOne(slugId);
+        if (article.isPresent()) {
+            Optional<Article> publish = articleService.publish(article.get());
+            if (publish.isPresent())
+                return ResponseEntity.status(NO_CONTENT).build();
+            else
+                return ResponseEntity.status(BAD_REQUEST).build();
+        }
+        return ResponseEntity.status(NOT_FOUND).build();
     }
 
 }
