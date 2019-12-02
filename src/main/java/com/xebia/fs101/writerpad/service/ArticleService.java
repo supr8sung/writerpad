@@ -10,18 +10,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.xebia.fs101.writerpad.model.ArticleStatus.*;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @Service
 public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
+
     @Autowired
     private EmailService emailService;
 
@@ -79,19 +82,29 @@ public class ArticleService {
         return Optional.empty();
     }
 
-    public ResponseEntity<Void> publish(Article articleToPublish) {
+    public Optional<Article> publish(String slugId) {
 
-        if (articleToPublish.getStatus() == ArticleStatus.PUBLISHED)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        articleRepository.updateStatus(ArticleStatus.PUBLISHED, articleToPublish.getId());
+        Optional<Article> publishedArticle=null;
+        UUID id=StringUtils.extractUuid(slugId);
+        Optional<Article> article = articleRepository.findById(id);
         try {
             emailService.sendMail("supreet.singh@xebia.com"
                     , "Congratulations"
                     , "Hello dost, your blog has been successfully published");
-        } catch (Exception e) {
+        }
+        catch (MailException e){
             e.printStackTrace();
         }
-        return ResponseEntity.status(NO_CONTENT).build();
+        if (article.isPresent())
+            if (article.get().getStatus() == PUBLISHED)
+                publishedArticle= Optional.empty();
+            else {
+                    articleRepository.updateStatus(PUBLISHED,id);
+                publishedArticle = Optional.of(article.get());
+            }
+            return publishedArticle;
     }
+
+
 
 }

@@ -24,7 +24,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -102,10 +102,9 @@ public class ArticleResource {
             @PathVariable(value = "slug_id") String slugId
             , @PathVariable(value = "status") String status) {
 
-        Optional<Article> article = articleService.findOne(slugId);
-        if (article.isPresent())
-            return articleService.publish(article.get());
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).build();
+        if (articleService.publish(slugId).isPresent())
+            return ResponseEntity.status(NO_CONTENT).build();
+        return ResponseEntity.status(BAD_REQUEST).build();
     }
 
 }

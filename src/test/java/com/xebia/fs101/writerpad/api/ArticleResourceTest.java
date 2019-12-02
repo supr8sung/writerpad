@@ -180,7 +180,7 @@ class ArticleResourceTest {
         this.mockMvc.perform(get("/api/articles/?status=DRAFT"))
                 .andDo(print())
                 .andExpect(jsonPath("$.length()").value(3));
-        articleService.publish(article2);
+        articleService.publish(slugIdGenerator.apply(article2));
         this.mockMvc.perform(get("/api/articles/?status=DRAFT"))
                 .andDo(print())
                 .andExpect(jsonPath("$.length()").value(2));
@@ -198,8 +198,8 @@ class ArticleResourceTest {
         Article article4 = createArticle("title4", "body4", "description5");
         Article article5 = createArticle("title4", "body4", "description5");
         articleRepository.saveAll(Arrays.asList(article1, article2, article3, article4, article5));
-        articleService.publish(article2);
-        articleService.publish(article3);
+        articleService.publish(slugIdGenerator.apply(article2));
+        articleService.publish(slugIdGenerator.apply(article3));
         this.mockMvc.perform(get("/api/articles/?status=DRAFT&size=2"))
                 .andDo(print())
                 .andExpect(jsonPath("$.length()").value(2));
