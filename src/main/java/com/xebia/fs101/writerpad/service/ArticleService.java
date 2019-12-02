@@ -81,18 +81,19 @@ public class ArticleService {
     public Optional<Article> publish(Article article) {
 
         Optional<Article> publishedArticle = null;
-        sendEmail();
+
         if (article.getStatus() == PUBLISHED)
             publishedArticle = Optional.empty();
         else {
+            sendEmail();
             articleRepository.updateStatus(PUBLISHED, article.getId());
             publishedArticle = Optional.of(article);
         }
         return publishedArticle;
     }
 
-    public void sendEmail()
-    {
+    public void sendEmail() {
+
         try {
             emailService.sendMail("supreet.singh@xebia.com"
                     , "Congratulations"
