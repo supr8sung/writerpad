@@ -98,7 +98,7 @@ public class ArticleResource {
     }
 
     @PostMapping(path = "/{slug_id}/{status}")
-    public ResponseEntity<Void> updateStatus(
+    public ResponseEntity<Void> articlePublish(
             @PathVariable(value = "slug_id") String slugId
             , @PathVariable(value = "status") String status) {
 
