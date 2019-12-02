@@ -81,13 +81,7 @@ public class ArticleService {
     public Optional<Article> publish(Article article) {
 
         Optional<Article> publishedArticle = null;
-        try {
-            emailService.sendMail("supreet.singh@xebia.com"
-                    , "Congratulations"
-                    , "Hello dost, your blog has been successfully published");
-        } catch (MailException e) {
-            e.printStackTrace();
-        }
+        sendEmail();
         if (article.getStatus() == PUBLISHED)
             publishedArticle = Optional.empty();
         else {
@@ -95,6 +89,17 @@ public class ArticleService {
             publishedArticle = Optional.of(article);
         }
         return publishedArticle;
+    }
+
+    public void sendEmail()
+    {
+        try {
+            emailService.sendMail("supreet.singh@xebia.com"
+                    , "Congratulations"
+                    , "Hello dost, your blog has been successfully published");
+        } catch (MailException e) {
+            e.printStackTrace();
+        }
     }
 
 }
