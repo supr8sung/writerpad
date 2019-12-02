@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -30,8 +31,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class ArticleResourceTest {
     @Autowired
     private MockMvc mockMvc;
@@ -64,11 +67,6 @@ class ArticleResourceTest {
                         status().isBadRequest());
     }
 
-    @Test
-    public void shouldFetchData() {
-
-        articleRepository.count();
-    }
 
     @Test
     void should_be_able_to_add_article_and_give_status_as_201() throws Exception {
@@ -184,9 +182,6 @@ class ArticleResourceTest {
         this.mockMvc.perform(get("/api/articles/?status=DRAFT"))
                 .andDo(print())
                 .andExpect(jsonPath("$.length()").value(2));
-        this.mockMvc.perform(get("/api/articles/?status=PUBLISHED"))
-                .andDo(print())
-                .andExpect(jsonPath("$.length()").value(1));
     }
 
     @Test
@@ -247,10 +242,10 @@ class ArticleResourceTest {
         Article article = createArticle("title", "body", "description");
         Article savedArticle = articleRepository.save(article);
         assertThat(savedArticle.getStatus()).isEqualByComparingTo(DRAFT);
-        this.mockMvc.perform(post("/api/articles/{slugId}/{status}", slugIdGenerator.apply(savedArticle), PUBLISHED))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-        this.mockMvc.perform(post("/api/articles/{slugId}/{status}", slugIdGenerator.apply(savedArticle), PUBLISHED))
+
+        savedArticle.publish();
+        Article save = articleRepository.save(savedArticle);
+        this.mockMvc.perform(post("/api/articles/{slugId}/{status}", slugIdGenerator.apply(save), PUBLISHED))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }

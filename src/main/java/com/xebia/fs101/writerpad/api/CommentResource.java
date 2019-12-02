@@ -22,12 +22,10 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -53,11 +51,10 @@ public class CommentResource {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        UUID id = StringUtils.extractUuid(slugId);
         Optional<Article> article = articleService.findOne(slugId);
         if (article.isPresent()) {
             Comment comment = commentRequest.toComment(article.get(), request.getRemoteAddr());
-            Comment postedComment = commentService.postComment(comment);
+            commentService.postComment(comment);
             return ResponseEntity.status(CREATED).build();
         }
         return ResponseEntity.status(NOT_FOUND).build();
@@ -66,10 +63,8 @@ public class CommentResource {
     @GetMapping(path = "{slug_id}/comments")
     public ResponseEntity<List<Comment>> get(@PathVariable(value = "slug_id") String slugId) {
 
-        UUID id = StringUtils.extractUuid(slugId);
-        Optional<Article> article = articleService.findOne(slugId);
-        if (article.isPresent()) {
-            List<Comment> comments = commentService.getAll(id);
+        if (articleService.findOne(slugId).isPresent()) {
+            List<Comment> comments = commentService.getAll(StringUtils.extractUuid(slugId));
             return new ResponseEntity<>(comments, OK);
         }
         return ResponseEntity.status(NOT_FOUND).build();
@@ -80,12 +75,11 @@ public class CommentResource {
             @PathVariable(value = "slug_id") String slugId,
             @PathVariable(value = "id") Long id) {
 
-        Optional<Article> optionalArticle = this.articleService.findOne(slugId);
-        if (optionalArticle.isPresent()) {
-            return this.commentService.deleteComment(id) ? ResponseEntity.status(NO_CONTENT).build()
-                    : ResponseEntity.status(NOT_FOUND).build();
+        if (articleService.findOne(slugId).isPresent()) {
+            return this.commentService.deleteComment(id) ? ResponseEntity.noContent().build()
+                    : ResponseEntity.notFound().build();
         }
-        return ResponseEntity.status(NOT_FOUND).build();
+        return ResponseEntity.notFound().build();
     }
 
 }

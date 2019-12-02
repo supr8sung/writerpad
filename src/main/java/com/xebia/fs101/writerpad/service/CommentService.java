@@ -18,8 +18,7 @@ public class CommentService {
 
     public Comment postComment(Comment comment) {
 
-        Comment savedComment = commentRepository.save(comment);
-        return savedComment;
+        return commentRepository.save(comment);
     }
 
     public List<Comment> getAll(UUID id) {

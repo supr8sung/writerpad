@@ -64,26 +64,21 @@ class ArticleServiceTest {
 
     }
 
-//    @Test
-//    public void should_be_able_to_update_an_article(){
-//        Article article = new Article.Builder()
-//                .withBody("abc")
-//                .withDescription("efef")
-//                .withTitle("fefe")
-//                .build();
-//
-//        ArticleRequest updateArticle = new ArticleRequest.Builder()
-//                .withBody(" body")
-//                .withTitle("title")
-//                .withDescription("description")
-//                .build();
-//        when(articleRepository.findById(any())).thenReturn(Optional.ofNullable(new Article.Builder().withTitle("efe").build()));
-//        articleService.update("id"+UUID.randomUUID(),article);
-//        verify(articleRepository).findById(UUID.randomUUID());
-//        //verify(articleRepository).save(any());
-//        verifyNoMoreInteractions(articleRepository);
-//
-//    }
+    @Test
+    public void should_be_able_to_update_an_article(){
+        Article article = new Article.Builder()
+                .withBody("abc")
+                .withDescription("efef")
+                .withTitle("fefe")
+                .build();
+
+        when(articleRepository.findById(any())).thenReturn(Optional.ofNullable(new Article()));
+        when(articleRepository.save(any())).thenReturn(new Article());
+        articleService.update("id"+UUID.randomUUID(),article);
+        verify(articleRepository).findById(any());
+        verifyNoMoreInteractions(articleRepository);
+
+    }
 
 
 

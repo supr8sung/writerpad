@@ -5,12 +5,15 @@ import com.xebia.fs101.writerpad.model.ArticleStatus;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.service.ArticleService;
 import com.xebia.fs101.writerpad.service.CommentService;
+import com.xebia.fs101.writerpad.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +40,8 @@ public class ArticleResource {
     private ArticleService articleService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping
     public ResponseEntity<List<Article>> getAll(Pageable pageable) {
@@ -65,27 +70,24 @@ public class ArticleResource {
     public ResponseEntity<Article> create(@Valid @RequestBody ArticleRequest articleRequest) {
 
         Article savedArticle = articleService.add(articleRequest);
-        System.out.println("Data saved successfully");
-        return new ResponseEntity<Article>(savedArticle, HttpStatus.CREATED);
+        return new ResponseEntity<>(savedArticle, HttpStatus.CREATED);
     }
 
     @GetMapping(path = "/{slug_id}")
     public ResponseEntity<Article> getById(@PathVariable(value = "slug_id") String slugId) {
 
         Optional<Article> article = articleService.findOne(slugId);
-        if (!article.isPresent())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        return new ResponseEntity<Article>(article.get(), OK);
+        return article
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping(path = "/{slug_id}")
     public ResponseEntity<Void> delete(@PathVariable(value = "slug_id") String slugId) {
 
-        boolean deleted = articleService.delete(slugId);
-        if (deleted)
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (articleService.delete(slugId))
+            return ResponseEntity.noContent().build();
+        return ResponseEntity.notFound().build();
     }
 
     @PatchMapping(path = "/{slug_id}")
@@ -95,7 +97,8 @@ public class ArticleResource {
 
         Article article = articleRequest.toArticle();
         Optional<Article> updatedArticle = articleService.update(slugId, article);
-        return updatedArticle.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return updatedArticle.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping(path = "/{slug_id}/{status}")
@@ -106,12 +109,19 @@ public class ArticleResource {
         Optional<Article> article = articleService.findOne(slugId);
         if (article.isPresent()) {
             Optional<Article> publish = articleService.publish(article.get());
-            if (publish.isPresent())
+            if (publish.isPresent()) {
+                emailService.sendMail();
                 return ResponseEntity.status(NO_CONTENT).build();
-            else
+            } else
                 return ResponseEntity.status(BAD_REQUEST).build();
         }
         return ResponseEntity.status(NOT_FOUND).build();
+    }
+
+    @ExceptionHandler(MailException.class)
+    public ResponseEntity<Void> handleException(MailException ex) {
+
+        return ResponseEntity.status(NO_CONTENT).build();
     }
 
 }

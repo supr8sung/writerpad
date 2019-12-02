@@ -8,7 +8,6 @@ import com.xebia.fs101.writerpad.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,8 +20,6 @@ import static com.xebia.fs101.writerpad.model.ArticleStatus.PUBLISHED;
 public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
-    @Autowired
-    private EmailService emailService;
 
     public Article add(ArticleRequest articleRequest) {
 
@@ -33,8 +30,7 @@ public class ArticleService {
                         .map(tag -> tag.replaceAll(" ", "-").toLowerCase())
                         .collect(Collectors.toList()))
                 .build();
-        Article savedArticle = articleRepository.save(article);
-        return savedArticle;
+        return articleRepository.save(article);
     }
 
     public Page<Article> findAll(Pageable pageable) {
@@ -49,11 +45,7 @@ public class ArticleService {
 
     public Optional<Article> findOne(String slugId) {
 
-        UUID id = StringUtils.extractUuid(slugId);
-        Optional<Article> optionalArticle = articleRepository.findById(id);
-        if (!optionalArticle.isPresent())
-            return Optional.empty();
-        return optionalArticle;
+        return articleRepository.findById(StringUtils.extractUuid(slugId));
     }
 
     public boolean delete(String slugId) {
@@ -68,11 +60,10 @@ public class ArticleService {
 
     public Optional<Article> update(String slugId, Article copyFrom) {
 
-        UUID id = StringUtils.extractUuid(slugId);
-        Optional<Article> optionalArticle = articleRepository.findById(id);
+        Optional<Article> optionalArticle =
+                articleRepository.findById(StringUtils.extractUuid(slugId));
         if (optionalArticle.isPresent()) {
-            Article article = optionalArticle.get();
-            Article articleToBeUpdated = article.update(copyFrom);
+            Article articleToBeUpdated = optionalArticle.get().update(copyFrom);
             return Optional.of(articleRepository.save(articleToBeUpdated));
         }
         return Optional.empty();
@@ -80,26 +71,11 @@ public class ArticleService {
 
     public Optional<Article> publish(Article article) {
 
-        Optional<Article> publishedArticle = null;
-
         if (article.getStatus() == PUBLISHED)
-            publishedArticle = Optional.empty();
+            return Optional.empty();
         else {
-            sendEmail();
-            articleRepository.updateStatus(PUBLISHED, article.getId());
-            publishedArticle = Optional.of(article);
-        }
-        return publishedArticle;
-    }
-
-    public void sendEmail() {
-
-        try {
-            emailService.sendMail("supreet.singh@xebia.com"
-                    , "Congratulations"
-                    , "Hello dost, your blog has been successfully published");
-        } catch (MailException e) {
-            e.printStackTrace();
+            article.publish();
+            return Optional.of(articleRepository.save(article));
         }
     }
 
