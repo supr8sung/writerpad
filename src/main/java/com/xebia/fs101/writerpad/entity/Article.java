@@ -25,6 +25,7 @@ import static java.util.stream.Collectors.toList;
 @Entity
 @Table(name = "articles")
 public class Article {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -32,6 +33,7 @@ public class Article {
     private String slug;
     private String title;
     private String description;
+    @Column(name = "body", length = 1255)
     private String body;
     @ElementCollection
     private List<String> tags;
@@ -120,8 +122,8 @@ public class Article {
         if (Objects.nonNull(changedArticle.getDescription())) {
             this.description = changedArticle.getDescription();
         }
-        if (Objects.nonNull(changedArticle.getTags())
-                && changedArticle.getTags().size() > 0) {
+        if (Objects.nonNull(
+                changedArticle.getTags()) && changedArticle.getTags().size() > 0) {
             this.tags = changedArticle.getTags();
         }
         this.updatedAt = new Date();
@@ -150,6 +152,7 @@ public class Article {
     }
 
     public static final class Builder {
+
         private UUID id;
         private String slug;
         private String title;
@@ -192,8 +195,8 @@ public class Article {
 
         public Builder withTags(List<String> tags) {
 
-            this.tags = tags == null
-                    ? new ArrayList<>() : tags.stream().map(StringUtils::slugify).collect(toList());
+            this.tags = tags == null ? new ArrayList<>() : tags.stream().map(
+                    StringUtils::slugify).collect(toList());
             return this;
         }
 

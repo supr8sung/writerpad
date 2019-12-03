@@ -5,11 +5,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
 @Profile("!test")
 public class GmailService implements EmailService {
+
     @Autowired
     private JavaMailSender javaMailSender;
     @Value("${email.receiver}")
@@ -18,7 +20,10 @@ public class GmailService implements EmailService {
     private String subject;
     @Value("${email.body}")
     private String body;
+    @Value("$")
+    private String property;
 
+    @Async
     public void sendMail() {
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArticleRequest {
+
     @NotNull
     @NotEmpty
     private String title;
@@ -52,6 +53,7 @@ public class ArticleRequest {
     }
 
     public static final class Builder {
+
         private String title;
         private String description;
         private String body;

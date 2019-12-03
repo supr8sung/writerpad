@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Profile("test")
 public class NoOutputMailService implements EmailService {
+
     @Override
     public void sendMail() {
 

@@ -15,6 +15,7 @@ import java.util.Date;
 
 @Entity
 public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -74,6 +75,7 @@ public class Comment {
     }
 
     public static final class Builder {
+
         private long id;
         private String body;
         private Date createAt;

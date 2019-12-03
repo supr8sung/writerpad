@@ -46,6 +46,14 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
+
+        <dependency>
+             <groupId>org.assertj</groupId>
+             <artifactId>assertj-core</artifactId>
+             <version>3.11.1</version>
+             <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
@@ -61,10 +69,9 @@
             <version>2.2.1.RELEASE</version>
         </dependency>
         <dependency>
-            <groupId>com.icegreen</groupId>
-            <artifactId>greenmail</artifactId>
-            <version>1.5.5</version>
-            <scope>test</scope>
+            <groupId>com.github.ulisesbocchio</groupId>
+            <artifactId>jasypt-spring-boot-starter</artifactId>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

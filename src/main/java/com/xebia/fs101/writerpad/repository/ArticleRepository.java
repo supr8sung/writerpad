@@ -15,7 +15,9 @@ import java.util.UUID;
 @Component
 @Transactional
 public interface ArticleRepository extends JpaRepository<Article, UUID> {
+
     @Query("FROM Article a WHERE a.status=:articleStatus")
-    Page<Article> findAllByStatus(@Param("articleStatus") ArticleStatus status, Pageable pageable);
+    Page<Article> findAllByStatus(@Param("articleStatus") ArticleStatus status,
+                                  Pageable pageable);
 
 }

@@ -3,17 +3,17 @@ package com.xebia.fs101.writerpad.api;
 import com.xebia.fs101.writerpad.entity.Article;
 import com.xebia.fs101.writerpad.model.ArticleStatus;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
+import com.xebia.fs101.writerpad.response.ReadingTimeResponse;
 import com.xebia.fs101.writerpad.service.ArticleService;
 import com.xebia.fs101.writerpad.service.CommentService;
 import com.xebia.fs101.writerpad.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,12 +36,15 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RestController
 @RequestMapping("/api/articles")
 public class ArticleResource {
+
     @Autowired
     private ArticleService articleService;
     @Autowired
     private CommentService commentService;
     @Autowired
     private EmailService emailService;
+    @Value("${averageTimeToRead}")
+    private int averageTime;
 
     @GetMapping
     public ResponseEntity<List<Article>> getAll(Pageable pageable) {
@@ -54,12 +57,12 @@ public class ArticleResource {
     }
 
     @RequestMapping(params = "status", method = GET)
-    public ResponseEntity<List<Article>> getAllByStatus(
-            @RequestParam(value = "status", required = true) String status, Pageable pageable) {
+    public ResponseEntity<List<Article>> getAllByStatus(@RequestParam(value = "status",
+            required = true) String status, Pageable pageable) {
 
-        Page<Article> pageResult =
-                articleService.findAllByStatus(
-                        ArticleStatus.valueOf(status.toUpperCase()), pageable);
+        Page<Article> pageResult = articleService.findAllByStatus(
+                ArticleStatus.valueOf(status.toUpperCase()),
+                pageable);
         if (!pageResult.hasContent())
             return ResponseEntity.status(NO_CONTENT).build();
         List<Article> articles = pageResult.getContent();
@@ -77,9 +80,7 @@ public class ArticleResource {
     public ResponseEntity<Article> getById(@PathVariable(value = "slug_id") String slugId) {
 
         Optional<Article> article = articleService.findOne(slugId);
-        return article
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return article.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping(path = "/{slug_id}")
@@ -91,20 +92,19 @@ public class ArticleResource {
     }
 
     @PatchMapping(path = "/{slug_id}")
-    public ResponseEntity<Article> update(
-            @RequestBody ArticleRequest articleRequest,
-            @PathVariable(value = "slug_id") String slugId) {
+    public ResponseEntity<Article> update(@RequestBody ArticleRequest articleRequest,
+                                          @PathVariable(value = "slug_id") String slugId) {
 
         Article article = articleRequest.toArticle();
         Optional<Article> updatedArticle = articleService.update(slugId, article);
-        return updatedArticle.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return updatedArticle.map(ResponseEntity::ok).orElse(
+                ResponseEntity.notFound().build());
     }
 
     @PostMapping(path = "/{slug_id}/{status}")
     public ResponseEntity<Void> articlePublish(
-            @PathVariable(value = "slug_id") String slugId
-            , @PathVariable(value = "status") String status) {
+            @PathVariable(value = "slug_id") String slugId, @PathVariable(value =
+            "status") String status) {
 
         Optional<Article> article = articleService.findOne(slugId);
         if (article.isPresent()) {
@@ -118,11 +118,14 @@ public class ArticleResource {
         return ResponseEntity.status(NOT_FOUND).build();
     }
 
-    @ExceptionHandler(MailException.class)
-    public ResponseEntity<Void> handleException(MailException ex) {
+    @GetMapping(path = "{slug_id}/timetoread")
+    public ResponseEntity<ReadingTimeResponse> readingTime(@PathVariable(value =
+            "slug_id") String slugId) {
 
-        return ResponseEntity.status(NO_CONTENT).build();
+        Optional<Article> article = articleService.findOne(slugId);
+        return article.map(value -> new ResponseEntity<>(
+                articleService.calculateReadingTime(value, averageTime), OK))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }
-

@@ -31,6 +31,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequestMapping(path = "/api/articles/")
 public class CommentResource {
+
     @Autowired
     private CommentService commentService;
     @Autowired
@@ -39,10 +40,9 @@ public class CommentResource {
     private ArticleService articleService;
 
     @PostMapping(path = "{slug_id}/comments")
-    public ResponseEntity<Void> add(
-            @PathVariable(value = "slug_id") String slugId,
-            @Valid @RequestBody CommentRequest commentRequest
-            , HttpServletRequest request) {
+    public ResponseEntity<Void> add(@PathVariable(value = "slug_id") String slugId,
+                                    @Valid @RequestBody CommentRequest commentRequest,
+                                    HttpServletRequest request) {
 
         try {
             if (spamChecker.isSpam(commentRequest.getBody())) {
@@ -53,7 +53,8 @@ public class CommentResource {
         }
         Optional<Article> article = articleService.findOne(slugId);
         if (article.isPresent()) {
-            Comment comment = commentRequest.toComment(article.get(), request.getRemoteAddr());
+            Comment comment = commentRequest.toComment(article.get(),
+                                                       request.getRemoteAddr());
             commentService.postComment(comment);
             return ResponseEntity.status(CREATED).build();
         }
@@ -64,19 +65,20 @@ public class CommentResource {
     public ResponseEntity<List<Comment>> get(@PathVariable(value = "slug_id") String slugId) {
 
         if (articleService.findOne(slugId).isPresent()) {
-            List<Comment> comments = commentService.getAll(StringUtils.extractUuid(slugId));
+            List<Comment> comments = commentService.getAll(
+                    StringUtils.extractUuid(slugId));
             return new ResponseEntity<>(comments, OK);
         }
         return ResponseEntity.status(NOT_FOUND).build();
     }
 
     @DeleteMapping(path = "/{slug_id}/comments/{id}")
-    public ResponseEntity<Void> delete(
-            @PathVariable(value = "slug_id") String slugId,
-            @PathVariable(value = "id") Long id) {
+    public ResponseEntity<Void> delete(@PathVariable(value = "slug_id") String slugId,
+                                       @PathVariable(value = "id") Long id) {
 
         if (articleService.findOne(slugId).isPresent()) {
-            return this.commentService.deleteComment(id) ? ResponseEntity.noContent().build()
+            return this.commentService.deleteComment(id)
+                    ? ResponseEntity.noContent().build()
                     : ResponseEntity.notFound().build();
         }
         return ResponseEntity.notFound().build();

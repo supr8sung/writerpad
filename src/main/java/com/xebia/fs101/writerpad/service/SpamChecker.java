@@ -15,6 +15,7 @@ import java.util.Set;
 
 @Component
 public class SpamChecker {
+
     @Value("${classpath:spamwords.txt}")
     private File file;
     Set<String> spamWords;
