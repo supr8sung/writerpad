@@ -6,7 +6,6 @@ import com.xebia.fs101.writerpad.entity.Comment;
 import javax.validation.constraints.NotBlank;
 
 public class CommentRequest {
-
     @NotBlank
     private String body;
 
@@ -32,5 +31,4 @@ public class CommentRequest {
                 .withArticle(article)
                 .build();
     }
-
 }

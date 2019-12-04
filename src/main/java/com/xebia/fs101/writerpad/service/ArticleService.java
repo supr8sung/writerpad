@@ -13,6 +13,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -88,5 +92,25 @@ public class ArticleService {
             article.publish();
             return Optional.of(articleRepository.save(article));
         }
+    }
+
+    //this method is using findALl method of JPA
+    public Map<String, Long> getAllTags() {
+
+        List<Article> all = articleRepository.findAll();
+        List<String> tags = articleRepository.findAll().stream()
+                .map(Article::getTags)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        Map<String, Long> collect = tags.stream()
+                .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+        return collect;
+    }
+
+    //this method is using query defined in articleRepository interface
+    public Map<String, BigInteger> getAllTags2() {
+
+        return articleRepository.findAllTags().stream().collect(
+                Collectors.toMap(a -> (String) a[0], a -> (BigInteger) a[1]));
     }
 }

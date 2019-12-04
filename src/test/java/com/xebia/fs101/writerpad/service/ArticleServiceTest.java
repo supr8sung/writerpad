@@ -107,4 +107,11 @@ class ArticleServiceTest {
 
     }
 
+    @Test
+    void should_get_all_tags_from_table() {
+        articleService.getAllTags2();
+        verify(articleRepository).findAllTags();
+        verifyNoMoreInteractions(articleRepository);
+
+    }
 }

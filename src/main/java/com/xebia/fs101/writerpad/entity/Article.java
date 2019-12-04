@@ -12,7 +12,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,9 +22,8 @@ import java.util.UUID;
 import static java.util.stream.Collectors.toList;
 
 @Entity
-@Table(name = "articles")
+//@Table(name = "articles")
 public class Article {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -152,7 +150,6 @@ public class Article {
     }
 
     public static final class Builder {
-
         private UUID id;
         private String slug;
         private String title;
@@ -222,7 +219,5 @@ public class Article {
 
             return new Article(this);
         }
-
     }
-
 }

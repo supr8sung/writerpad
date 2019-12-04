@@ -31,7 +31,6 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequestMapping(path = "/api/articles/")
 public class CommentResource {
-
     @Autowired
     private CommentService commentService;
     @Autowired
@@ -83,5 +82,4 @@ public class CommentResource {
         }
         return ResponseEntity.notFound().build();
     }
-
 }

@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @EnableAsync
 public class WriterpadApplication {
-
     public static void main(String[] args) {
 
         SpringApplication.run(WriterpadApplication.class, args);

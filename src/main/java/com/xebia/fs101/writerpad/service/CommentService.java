@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @Service
 public class CommentService {
-
     @Autowired
     private CommentRepository commentRepository;
     @Autowired
@@ -35,5 +34,4 @@ public class CommentService {
         }
         return false;
     }
-
 }

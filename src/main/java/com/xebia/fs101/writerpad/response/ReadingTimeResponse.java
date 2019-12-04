@@ -3,7 +3,6 @@ package com.xebia.fs101.writerpad.response;
 import com.xebia.fs101.writerpad.model.ReadingTime;
 
 public class ReadingTimeResponse {
-
     private String slugId;
     private ReadingTime readingTime;
 
@@ -22,5 +21,4 @@ public class ReadingTimeResponse {
 
         return readingTime;
     }
-
 }

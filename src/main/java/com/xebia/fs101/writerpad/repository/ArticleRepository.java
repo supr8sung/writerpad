@@ -10,14 +10,17 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
 
 @Component
 @Transactional
 public interface ArticleRepository extends JpaRepository<Article, UUID> {
-
     @Query("FROM Article a WHERE a.status=:articleStatus")
     Page<Article> findAllByStatus(@Param("articleStatus") ArticleStatus status,
                                   Pageable pageable);
-
+    String groupByQuery = "select at.tags,count(*) from article a, article_tags at "
+            + "where a.id=at.article_id group by at.tags";
+    @Query(value = groupByQuery, nativeQuery = true)
+    List<Object[]> findAllTags();
 }

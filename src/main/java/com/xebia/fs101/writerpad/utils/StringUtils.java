@@ -3,7 +3,6 @@ package com.xebia.fs101.writerpad.utils;
 import java.util.UUID;
 
 public abstract class StringUtils {
-
     private StringUtils() {
 
     }
@@ -26,5 +25,4 @@ public abstract class StringUtils {
             throw new IllegalArgumentException("uuid is not valid");
         }
     }
-
 }

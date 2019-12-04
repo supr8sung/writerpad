@@ -1,7 +1,6 @@
 package com.xebia.fs101.writerpad.model;
 
 public class ReadingTime {
-
     private int mins;
     private int seconds;
 
@@ -24,5 +23,4 @@ public class ReadingTime {
         readingTime.seconds = (int) timeInSeconds;
         return readingTime;
     }
-
 }
