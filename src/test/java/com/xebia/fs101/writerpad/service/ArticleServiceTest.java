@@ -6,6 +6,7 @@ import com.xebia.fs101.writerpad.repository.ArticleRepository;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.response.ReadingTimeResponse;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +31,13 @@ class ArticleServiceTest {
     private ArticleRepository articleRepository;
     @InjectMocks
     private ArticleService articleService;
+
+
+    @BeforeEach
+    void setup() {
+
+        articleService.averageTime=225;
+    }
 
     @Test
     void should_be_able_to_save_an_article() {
@@ -79,7 +89,7 @@ class ArticleServiceTest {
     @Test
     public void should_calulcate_reading_time_for_any_article() {
 
-        Article article = new Article.Builder().withDescription("description").withTitle("title").withBody("Lefteris " +
+        Article article = new Article.Builder().withDescription("description").withTitle("title").withBody(".Lefteris " +
                 "is a Lead Software Engineer at ZuluTrade and has been responsible for re-architecting the backend of" +
                 " the main website from a monolith to event-driven microservices using Java, Spring Boot/Cloud, " +
                 "RabbitMQ, Redis. He has extensive work experience for over 10 years in Software Development, working" +
@@ -90,7 +100,8 @@ class ArticleServiceTest {
                 " by attending software conferences all over the world.").build();
 
         ArticleService articleService = new ArticleService();
-        ReadingTimeResponse readingTimeResponse = articleService.calculateReadingTime(article, 225);
+        articleService.averageTime=225;
+        ReadingTimeResponse readingTimeResponse = articleService.calculateReadingTime(article);
         assertThat(readingTimeResponse).isNotNull();
         assertThat(readingTimeResponse.getReadingTime().getSeconds()).isEqualTo(29);
 

@@ -8,7 +8,6 @@ import com.xebia.fs101.writerpad.service.ArticleService;
 import com.xebia.fs101.writerpad.service.CommentService;
 import com.xebia.fs101.writerpad.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -36,15 +36,13 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RestController
 @RequestMapping("/api/articles")
 public class ArticleResource {
-
     @Autowired
     private ArticleService articleService;
     @Autowired
     private CommentService commentService;
     @Autowired
     private EmailService emailService;
-    @Value("${averageTimeToRead}")
-    private int averageTime;
+
 
     @GetMapping
     public ResponseEntity<List<Article>> getAll(Pageable pageable) {
@@ -104,7 +102,7 @@ public class ArticleResource {
     @PostMapping(path = "/{slug_id}/{status}")
     public ResponseEntity<Void> articlePublish(
             @PathVariable(value = "slug_id") String slugId, @PathVariable(value =
-            "status") String status) {
+            "status") String status) throws ExecutionException, InterruptedException {
 
         Optional<Article> article = articleService.findOne(slugId);
         if (article.isPresent()) {
@@ -124,8 +122,7 @@ public class ArticleResource {
 
         Optional<Article> article = articleService.findOne(slugId);
         return article.map(value -> new ResponseEntity<>(
-                articleService.calculateReadingTime(value, averageTime), OK))
+                articleService.calculateReadingTime(value), OK))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
 }

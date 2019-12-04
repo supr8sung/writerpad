@@ -8,6 +8,7 @@ import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.response.ReadingTimeResponse;
 import com.xebia.fs101.writerpad.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,10 @@ import static com.xebia.fs101.writerpad.model.ArticleStatus.PUBLISHED;
 
 @Service
 public class ArticleService {
-
     @Autowired
     private ArticleRepository articleRepository;
+    @Value("${averageTimeToRead}")
+    int averageTime;
 
     public Article add(ArticleRequest articleRequest) {
 
@@ -71,7 +73,7 @@ public class ArticleService {
         return Optional.empty();
     }
 
-    public ReadingTimeResponse calculateReadingTime(Article article, int averageTime) {
+    public ReadingTimeResponse calculateReadingTime(Article article) {
 
         ReadingTime readingTime = ReadingTime.calculate(article.getBody(), averageTime);
         String slugId = article.getSlug() + "_" + article.getId();
@@ -87,5 +89,4 @@ public class ArticleService {
             return Optional.of(articleRepository.save(article));
         }
     }
-
 }
