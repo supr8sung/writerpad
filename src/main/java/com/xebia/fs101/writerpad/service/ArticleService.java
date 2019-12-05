@@ -51,9 +51,10 @@ public class ArticleService {
         return articleRepository.findAllByStatus(status, pageable);
     }
 
-    public Optional<Article> findOne(String slugId) {
+    public Article findOne(String slugId) {
 
-        return articleRepository.findById(StringUtils.extractUuid(slugId));
+        return articleRepository.findById(StringUtils.extractUuid(slugId)).orElseThrow(
+                () -> new ArticleNotFoundException("article not found"));
     }
 
     public boolean delete(String slugId) {
@@ -112,5 +113,31 @@ public class ArticleService {
 
         return articleRepository.findAllTags().stream().collect(
                 Collectors.toMap(a -> (String) a[0], a -> (BigInteger) a[1]));
+    }
+
+    public Article markFavourite(String slugId) {
+
+        Article article = articleRepository.findById(StringUtils.extractUuid(slugId))
+                .orElseThrow(() -> new ArticleNotFoundException("article not found"));
+        article.setFavorited(true);
+        article.setFavoritesCount(article.getFavoritesCount() + 1);
+        return articleRepository.save(article);
+    }
+
+    public Article deleteFavourite(String slugId) {
+
+        Article article = articleRepository.findById(StringUtils.extractUuid(slugId))
+                .orElseThrow(() -> new ArticleNotFoundException("article not found"));
+        long currentCount = article.getFavoritesCount();
+        if (currentCount == 0)
+            return article;
+        else if (currentCount == 1) {
+            article.setFavorited(false);
+            article.setFavoritesCount(0);
+            return articleRepository.save(article);
+        }
+        article.setFavorited(true);
+        article.setFavoritesCount(currentCount - 1);
+        return articleRepository.save(article);
     }
 }

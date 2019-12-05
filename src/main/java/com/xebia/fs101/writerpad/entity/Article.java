@@ -1,5 +1,6 @@
 package com.xebia.fs101.writerpad.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.xebia.fs101.writerpad.model.ArticleStatus;
 import com.xebia.fs101.writerpad.utils.StringUtils;
 
@@ -42,6 +43,7 @@ public class Article {
     private long favoritesCount;
     @Enumerated(EnumType.STRING)
     private ArticleStatus status;
+    @JsonBackReference
     @OneToMany(mappedBy = "article")
     private List<Comment> comment;
 
@@ -72,6 +74,11 @@ public class Article {
     public ArticleStatus getStatus() {
 
         return status;
+    }
+
+    public List<Comment> getComment() {
+
+        return comment;
     }
 
     public String getDescription() {
@@ -109,6 +116,16 @@ public class Article {
         return favoritesCount;
     }
 
+    public void setFavorited(boolean favorited) {
+
+        this.favorited = favorited;
+    }
+
+    public void setFavoritesCount(long favoritesCount) {
+
+        this.favoritesCount = favoritesCount;
+    }
+
     public Article update(Article changedArticle) {
 
         if (Objects.nonNull(changedArticle.getTitle())) {
@@ -143,7 +160,7 @@ public class Article {
         createdAt = new Date();
         updatedAt = new Date();
         favoritesCount = builder.favoritesCount;
-        favorited = builder.favorited;
+        favorited = builder.favourited;
         description = builder.description;
         slug = StringUtils.slugify(this.title);
         status = ArticleStatus.DRAFT;
@@ -159,7 +176,7 @@ public class Article {
         private Date createdAt;
         private Date updatedAt;
         public ArticleStatus status;
-        private boolean favorited = false;
+        private boolean favourited = false;
         private long favoritesCount = 0;
 
         public Builder() {
@@ -199,7 +216,7 @@ public class Article {
 
         public Builder withFavorited(boolean favorited) {
 
-            this.favorited = favorited;
+            this.favourited = favorited;
             return this;
         }
 

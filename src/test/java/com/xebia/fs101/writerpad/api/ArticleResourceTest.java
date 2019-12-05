@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -199,7 +200,7 @@ class ArticleResourceTest {
     }
 
     @Test
-    void should_be_able_to_publish_a_blog() throws Exception {
+    void should_be_able_to_publish_a_article() throws Exception {
 
         Article article = createArticle("title", "body", "description");
         Article savedArticle = articleRepository.save(article);
@@ -269,16 +270,40 @@ class ArticleResourceTest {
                         Arrays.asList("java")).build();
         ArticleRequest articleRequest2 = new ArticleRequest.Builder()
                 .withBody("body2").withTitle("title2").withDescription("desc2").withTags(
-                        Arrays.asList("python","Java","jAVa")).build();
+                        Arrays.asList("python", "Java", "jAVa")).build();
         Article article1 = articleRequest1.toArticle();
         Article article2 = articleRequest2.toArticle();
-        articleRepository.saveAll(Arrays.asList(article1,article2));
+        articleRepository.saveAll(Arrays.asList(article1, article2));
         this.mockMvc.perform(get("/api/articles/tags"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[*].tag").hasJsonPath())
                 .andExpect(jsonPath("$.[0].tag").value("python"))
                 .andExpect(jsonPath("$.[1].occurence").value("3"));
+    }
+
+    @Test
+    void should_be_able_to_mark_an_article_as_favourite() throws Exception {
+
+        Article article = createArticle("title", "body", "desc");
+        article.setFavoritesCount(4L);
+        Article savedArticle = articleRepository.save(article);
+      //  assertThat(savedArticle.getFavoritesCount()).isEqualTo(5L);
+        this.mockMvc.perform(put("/api/articles/{slug_id}/favourite",
+                                 slugIdGenerator.apply(savedArticle)))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+    @Test
+    void should_be_able_to_mark_an_article_as_unfavourite() throws Exception {
+
+        Article article = createArticle("title", "body", "desc");
+        article.setFavoritesCount(4L);
+        Article savedArticle = articleRepository.save(article);
+        this.mockMvc.perform(delete("/api/articles/{slug_id}/unfavourite",
+                                 slugIdGenerator.apply(savedArticle)))
+                .andDo(print())
+                .andExpect(status().isNoContent());
     }
 
     private Article createArticle(String title, String body, String description) {

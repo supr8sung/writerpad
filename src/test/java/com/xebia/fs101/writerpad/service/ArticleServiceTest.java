@@ -62,6 +62,7 @@ class ArticleServiceTest {
     public void should_be_able_to_find_an_article() {
 
         UUID id = UUID.randomUUID();
+        when(articleRepository.findById(any())).thenReturn(Optional.of(new Article()));
         articleService.findOne("slug" + id);
         verify(articleRepository).findById(id);
         verifyNoMoreInteractions(articleRepository);

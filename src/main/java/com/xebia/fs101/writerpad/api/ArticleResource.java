@@ -5,6 +5,7 @@ import com.xebia.fs101.writerpad.model.ArticleStatus;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.response.ReadingTimeResponse;
 import com.xebia.fs101.writerpad.response.TagsResponse;
+import com.xebia.fs101.writerpad.service.ArticleNotFoundException;
 import com.xebia.fs101.writerpad.service.ArticleService;
 import com.xebia.fs101.writerpad.service.CommentService;
 import com.xebia.fs101.writerpad.service.EmailService;
@@ -13,11 +14,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,11 +36,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+@ControllerAdvice
 @RestController
 @RequestMapping("/api/articles")
 public class ArticleResource {
@@ -80,8 +84,8 @@ public class ArticleResource {
     @GetMapping(path = "/{slug_id}")
     public ResponseEntity<Article> getById(@PathVariable(value = "slug_id") String slugId) {
 
-        Optional<Article> article = articleService.findOne(slugId);
-        return article.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        Article article = articleService.findOne(slugId);
+        return new ResponseEntity<>(article, OK);
     }
 
     @DeleteMapping(path = "/{slug_id}")
@@ -107,26 +111,23 @@ public class ArticleResource {
             @PathVariable(value = "slug_id") String slugId, @PathVariable(value =
             "status") String status) throws ExecutionException, InterruptedException {
 
-        Optional<Article> article = articleService.findOne(slugId);
-        if (article.isPresent()) {
-            Optional<Article> publish = articleService.publish(article.get());
-            if (publish.isPresent()) {
-                emailService.sendMail();
-                return ResponseEntity.status(NO_CONTENT).build();
-            } else
-                return ResponseEntity.status(BAD_REQUEST).build();
-        }
-        return ResponseEntity.status(NOT_FOUND).build();
+        Article article = articleService.findOne(slugId);
+        Optional<Article> publish = articleService.publish(article);
+        if (publish.isPresent()) {
+            emailService.sendMail();
+            return ResponseEntity.status(NO_CONTENT).build();
+        } else
+            return ResponseEntity.status(BAD_REQUEST).build();
     }
 
     @GetMapping(path = "{slug_id}/timetoread")
     public ResponseEntity<ReadingTimeResponse> readingTime(@PathVariable(value =
             "slug_id") String slugId) {
 
-        Optional<Article> article = articleService.findOne(slugId);
-        return article.map(value -> new ResponseEntity<>(
-                articleService.calculateReadingTime(value), OK))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Article article = articleService.findOne(slugId);
+        ReadingTimeResponse readingTimeResponse = articleService.calculateReadingTime(
+                article);
+        return new ResponseEntity<>(readingTimeResponse, OK);
     }
 
     @GetMapping(path = "/tags")
@@ -151,4 +152,19 @@ public class ArticleResource {
 //            return ResponseEntity.noContent().build();
 //        return new ResponseEntity<>(collectedTags,OK);
 //    }
+
+    @ExceptionHandler(ArticleNotFoundException.class)
+    @PutMapping("{slug_id}/favourite")
+    public ResponseEntity<Void> markFavorite(@PathVariable(value = "slug_id") String slugId) {
+
+        articleService.markFavourite(slugId);
+        return ResponseEntity.status(NO_CONTENT).build();
+    }
+
+    @DeleteMapping("{slug_id}/unfavourite")
+    public ResponseEntity<Void> deleteFavourite(@PathVariable(value = "slug_id") String slugId) {
+
+        articleService.deleteFavourite(slugId);
+        return ResponseEntity.status(NO_CONTENT).build();
+    }
 }

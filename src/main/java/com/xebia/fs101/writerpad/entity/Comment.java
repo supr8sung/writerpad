@@ -1,6 +1,6 @@
 package com.xebia.fs101.writerpad.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -26,7 +26,7 @@ public class Comment {
     private Date updatedAt;
     @ManyToOne
     @JoinColumn(name = "article_id", nullable = false)
-    @JsonIgnore
+    @JsonManagedReference
     private Article article;
     private String ipAddress;
 
