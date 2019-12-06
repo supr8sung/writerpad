@@ -7,10 +7,12 @@ public class TagsResponse {
     BigInteger occurence;
 
     public String getTag() {
+
         return tag;
     }
 
     public BigInteger getOccurence() {
+
         return occurence;
     }
 
