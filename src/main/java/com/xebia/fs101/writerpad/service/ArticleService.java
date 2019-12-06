@@ -112,7 +112,7 @@ public class ArticleService {
     public Map<String, BigInteger> getAllTags2() {
 
         return articleRepository.findAllTags().stream().collect(
-                Collectors.toMap(a ->  (String)a[0], a ->  (BigInteger)a[1]));
+                Collectors.toMap(a -> (String) a[0], a -> (BigInteger) a[1]));
     }
 
     public Article markFavourite(String slugId) {

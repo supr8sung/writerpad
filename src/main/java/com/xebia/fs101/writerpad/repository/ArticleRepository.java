@@ -20,8 +20,8 @@ public interface ArticleRepository extends JpaRepository<Article, UUID> {
     @Query("FROM Article a WHERE a.status=:articleStatus")
     Page<Article> findAllByStatus(@Param("articleStatus") ArticleStatus status,
                                   Pageable pageable);
-    String groupByQuery = "select at.tags,count(*) from " +
-            "article a, article_tags at "
+    String groupByQuery = "select at.tags,count(*) from "
+            + "article a, article_tags at "
             + "where a.id=at.article_id group by at.tags";
     @Query(value = groupByQuery, nativeQuery = true)
     List<Object[]> findAllTags();
