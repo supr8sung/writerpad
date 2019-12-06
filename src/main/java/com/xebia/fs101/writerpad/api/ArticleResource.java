@@ -130,28 +130,28 @@ public class ArticleResource {
         return new ResponseEntity<>(readingTimeResponse, OK);
     }
 
-    @GetMapping(path = "/tags")
-    public ResponseEntity<List<TagsResponse>> tags() {
-
-        Map<String, Long> mappedTags = articleService.getAllTags();
-        List<TagsResponse> collectedTags = mappedTags.entrySet().stream()
-                .map(e -> new TagsResponse(e.getKey(), BigInteger.valueOf(e.getValue())))
-                .collect(Collectors.toList());
-        if (mappedTags.isEmpty())
-            return ResponseEntity.noContent().build();
-        return new ResponseEntity<>(collectedTags, OK);
-    }
-//    @GetMapping(path="/tags")
-//    public ResponseEntity<List<TagsResponse>> tags(){
+//    @GetMapping(path = "/tags")
+//    public ResponseEntity<List<TagsResponse>> tags() {
 //
-//        List<TagsResponse> collectedTags = articleService.getAllTags2().entrySet()
-//        .stream()
-//                .map(e -> new TagsResponse(e.getKey(), e.getValue()))
+//        Map<String, Long> mappedTags = articleService.getAllTags();
+//        List<TagsResponse> collectedTags = mappedTags.entrySet().stream()
+//                .map(e -> new TagsResponse(e.getKey(), BigInteger.valueOf(e.getValue())))
 //                .collect(Collectors.toList());
-//        if(collectedTags.isEmpty())
+//        if (mappedTags.isEmpty())
 //            return ResponseEntity.noContent().build();
-//        return new ResponseEntity<>(collectedTags,OK);
+//        return new ResponseEntity<>(collectedTags, OK);
 //    }
+    @GetMapping(path="/tags")
+    public ResponseEntity<List<TagsResponse>> tags(){
+
+        List<TagsResponse> collectedTags = articleService.getAllTags2().entrySet()
+        .stream()
+                .map(e -> new TagsResponse(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+        if(collectedTags.isEmpty())
+            return ResponseEntity.noContent().build();
+        return new ResponseEntity<>(collectedTags,OK);
+    }
 
     @ExceptionHandler(ArticleNotFoundException.class)
     @PutMapping("{slug_id}/favourite")

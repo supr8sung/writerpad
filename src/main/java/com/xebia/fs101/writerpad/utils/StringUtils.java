@@ -1,6 +1,6 @@
 package com.xebia.fs101.writerpad.utils;
 
-import java.util.UUID;
+        import java.util.UUID;
 
 public abstract class StringUtils {
     private StringUtils() {

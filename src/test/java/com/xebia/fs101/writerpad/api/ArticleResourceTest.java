@@ -18,7 +18,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.xebia.fs101.writerpad.model.ArticleStatus.DRAFT;
 import static com.xebia.fs101.writerpad.model.ArticleStatus.PUBLISHED;
@@ -226,31 +229,13 @@ class ArticleResourceTest {
     @Test
     public void should_give_reading_time_for_any_article() throws Exception {
 
-        Article article = createArticle("title",
-                                        "Lefteris is a Lead Software Engineer at " +
-                                                "ZuluTrade and has been " +
-                                                "responsible for re-architecting the " +
-                                                "backend of the main website from a " +
-                                                "monolith to event-driven " +
-                                                "microservices using Java, Spring " +
-                                                "Boot/Cloud, RabbitMQ, Redis. He has " +
-                                                "extensive work experience for " +
-                                                "over 10 years in Software Development," +
-                                                " working mainly in the FinTech and " +
-                                                "Sports Betting industries. " + "Prior " +
-                                                "to joining ZuluTrade, Lefteris worked " +
-                                                "as a Senior Java Developer at Inspired" +
-                                                " Gaming Group in " + "London, building" +
-                                                " enterprise sports betting " +
-                                                "applications for William Hills and " +
-                                                "Paddy Power. He enjoys" + " working " +
-                                                "with large-scalable, real-time and " +
-                                                "high-volume systems deployed into AWS " +
-                                                "and wants to " + "combine his passion " +
-                                                "for technology and traveling by " +
-                                                "attending software conferences all " +
-                                                "over the " + "world.",
-                                        "description");
+
+        String body= IntStream.range(1, 400)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(" "));
+        System.out.println(body);
+        Article article=createArticle("title",body,"desc");
+
         Article savedArticle = articleRepository.save(article);
         this.mockMvc.perform(get("/api/articles/{slug_id}/timetoread",
                                  slugIdGenerator.apply(savedArticle)))
@@ -258,8 +243,8 @@ class ArticleResourceTest {
                 .andExpect(
                         jsonPath("$.slugId").value(slugIdGenerator.apply(savedArticle)))
                 .andExpect(jsonPath("$.readingTime").isNotEmpty())
-                .andExpect(jsonPath("$.readingTime.mins").value(0))
-                .andExpect(jsonPath("$.readingTime.seconds").value(29));
+                .andExpect(jsonPath("$.readingTime.mins").value(1))
+                .andExpect(jsonPath("$.readingTime.seconds").value(46));
     }
 
     @Test
@@ -288,12 +273,12 @@ class ArticleResourceTest {
         Article article = createArticle("title", "body", "desc");
         article.setFavoritesCount(4L);
         Article savedArticle = articleRepository.save(article);
-      //  assertThat(savedArticle.getFavoritesCount()).isEqualTo(5L);
         this.mockMvc.perform(put("/api/articles/{slug_id}/favourite",
                                  slugIdGenerator.apply(savedArticle)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
+
     @Test
     void should_be_able_to_mark_an_article_as_unfavourite() throws Exception {
 
@@ -301,9 +286,15 @@ class ArticleResourceTest {
         article.setFavoritesCount(4L);
         Article savedArticle = articleRepository.save(article);
         this.mockMvc.perform(delete("/api/articles/{slug_id}/unfavourite",
-                                 slugIdGenerator.apply(savedArticle)))
+                                    slugIdGenerator.apply(savedArticle)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
+
+        assertThat(savedArticle.getFavoritesCount()).isEqualTo(3L);
+        Optional<Article> article1 = articleRepository.findById(savedArticle.getId());
+        assertThat(article1.get().getFavoritesCount()).isEqualTo(3L);
+
+
     }
 
     private Article createArticle(String title, String body, String description) {

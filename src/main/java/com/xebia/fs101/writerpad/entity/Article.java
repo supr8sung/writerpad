@@ -32,7 +32,7 @@ public class Article {
     private String slug;
     private String title;
     private String description;
-    @Column(name = "body", length = 1255)
+    @Column(name = "body", length = 5555)
     private String body;
     @ElementCollection
     private List<String> tags;
@@ -160,7 +160,7 @@ public class Article {
         createdAt = new Date();
         updatedAt = new Date();
         favoritesCount = builder.favoritesCount;
-        favorited = builder.favourited;
+        favorited = builder.favorited;
         description = builder.description;
         slug = StringUtils.slugify(this.title);
         status = ArticleStatus.DRAFT;
@@ -176,7 +176,7 @@ public class Article {
         private Date createdAt;
         private Date updatedAt;
         public ArticleStatus status;
-        private boolean favourited = false;
+        private boolean favorited = false;
         private long favoritesCount = 0;
 
         public Builder() {
@@ -216,7 +216,7 @@ public class Article {
 
         public Builder withFavorited(boolean favorited) {
 
-            this.favourited = favorited;
+            this.favorited = favorited;
             return this;
         }
 
