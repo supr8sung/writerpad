@@ -233,7 +233,6 @@ class ArticleResourceTest {
         String body= IntStream.range(1, 400)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(" "));
-        System.out.println(body);
         Article article=createArticle("title",body,"desc");
 
         Article savedArticle = articleRepository.save(article);
@@ -290,7 +289,6 @@ class ArticleResourceTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        assertThat(savedArticle.getFavoritesCount()).isEqualTo(3L);
         Optional<Article> article1 = articleRepository.findById(savedArticle.getId());
         assertThat(article1.get().getFavoritesCount()).isEqualTo(3L);
 
