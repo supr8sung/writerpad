@@ -1,14 +1,8 @@
 package com.xebia.fs101.writerpad;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
-
-import javax.sql.DataSource;
 
 @SpringBootApplication
 @EnableAsync
@@ -19,7 +13,6 @@ public class WriterpadApplication {
 //    private String dbPassword;
 //    @Value("${spring.datasource.username}")
 //    private String dbUser;
-
 //    @Bean
 //    public DataSource dataSource() {
 //
