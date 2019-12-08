@@ -2,6 +2,7 @@ package com.xebia.fs101.writerpad.service;
 
 import com.xebia.fs101.writerpad.entity.Article;
 import com.xebia.fs101.writerpad.entity.Comment;
+import com.xebia.fs101.writerpad.exception.CommnetNotFoundException;
 import com.xebia.fs101.writerpad.repository.ArticleRepository;
 import com.xebia.fs101.writerpad.repository.CommentRepository;
 import com.xebia.fs101.writerpad.request.CommentRequest;

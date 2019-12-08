@@ -1,4 +1,4 @@
-package com.xebia.fs101.writerpad.service;
+package com.xebia.fs101.writerpad.exception;
 
 import org.springframework.web.bind.annotation.ResponseStatus;
 

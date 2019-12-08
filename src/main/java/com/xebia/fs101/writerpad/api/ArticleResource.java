@@ -1,18 +1,16 @@
 package com.xebia.fs101.writerpad.api;
 
 import com.xebia.fs101.writerpad.entity.Article;
-import com.xebia.fs101.writerpad.model.ArticleStatus;
+import com.xebia.fs101.writerpad.exception.ArticleNotFoundException;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.response.ReadingTimeResponse;
 import com.xebia.fs101.writerpad.response.TagsResponse;
-import com.xebia.fs101.writerpad.service.ArticleNotFoundException;
 import com.xebia.fs101.writerpad.service.ArticleService;
 import com.xebia.fs101.writerpad.service.CommentService;
 import com.xebia.fs101.writerpad.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -57,43 +55,37 @@ public class ArticleResource {
         Page<Article> pageResult = articleService.findAll(pageable);
         if (!pageResult.hasContent())
             ResponseEntity.status(NO_CONTENT).build();
-        List<Article> articles = pageResult.getContent();
-        return new ResponseEntity<>(articles, OK);
+        return new ResponseEntity<>(pageResult.getContent(), OK);
     }
 
     @RequestMapping(params = "status", method = GET)
-    public ResponseEntity<List<Article>> getAllByStatus(@RequestParam(value = "status",
-            required = true) String status, Pageable pageable) {
+    public ResponseEntity<List<Article>> getAllByStatus(@RequestParam(value = "status"
+    ) String status, Pageable pageable) {
 
-        Page<Article> pageResult = articleService.findAllByStatus(
-                ArticleStatus.valueOf(status.toUpperCase()),
-                pageable);
+        Page<Article> pageResult = articleService.findAllByStatus(status, pageable);
         if (!pageResult.hasContent())
             return ResponseEntity.status(NO_CONTENT).build();
-        List<Article> articles = pageResult.getContent();
-        return new ResponseEntity<>(articles, OK);
+        return new ResponseEntity<>(pageResult.getContent(), OK);
     }
 
     @PostMapping
     public ResponseEntity<Article> create(@Valid @RequestBody ArticleRequest articleRequest) {
 
         Article savedArticle = articleService.add(articleRequest);
-        return new ResponseEntity<>(savedArticle, HttpStatus.CREATED);
+        return new ResponseEntity<>(savedArticle, CREATED);
     }
 
     @GetMapping(path = "/{slug_id}")
     public ResponseEntity<Article> getById(@PathVariable(value = "slug_id") String slugId) {
 
-        Article article = articleService.findOne(slugId);
-        return new ResponseEntity<>(article, OK);
+        return new ResponseEntity<>(articleService.findOne(slugId), OK);
     }
 
     @DeleteMapping(path = "/{slug_id}")
     public ResponseEntity<Void> delete(@PathVariable(value = "slug_id") String slugId) {
 
-        if (articleService.delete(slugId))
-            return ResponseEntity.noContent().build();
-        return ResponseEntity.notFound().build();
+        articleService.delete(slugId);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping(path = "/{slug_id}")
@@ -101,9 +93,8 @@ public class ArticleResource {
                                           @PathVariable(value = "slug_id") String slugId) {
 
         Article article = articleRequest.toArticle();
-        Optional<Article> updatedArticle = articleService.update(slugId, article);
-        return updatedArticle.map(ResponseEntity::ok).orElse(
-                ResponseEntity.notFound().build());
+        Article updatedArticle = articleService.update(slugId, article);
+        return new ResponseEntity<>(updatedArticle, OK);
     }
 
     @PostMapping(path = "/{slug_id}/{status}")
@@ -112,8 +103,8 @@ public class ArticleResource {
             "status") String status) throws ExecutionException, InterruptedException {
 
         Article article = articleService.findOne(slugId);
-        Optional<Article> publish = articleService.publish(article);
-        if (publish.isPresent()) {
+        Optional<Article> publishedArticle = articleService.publish(article);
+        if (publishedArticle.isPresent()) {
             emailService.sendMail();
             return ResponseEntity.status(NO_CONTENT).build();
         } else
@@ -134,11 +125,11 @@ public class ArticleResource {
     public ResponseEntity<List<TagsResponse>> tags() {
 
         Map<String, Long> mappedTags = articleService.getAllTags();
-        List<TagsResponse> collectedTags = mappedTags.entrySet().stream()
-                .map(e -> new TagsResponse(e.getKey(), BigInteger.valueOf(e.getValue())))
-                .collect(Collectors.toList());
         if (mappedTags.isEmpty())
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.notFound().build();
+        List<TagsResponse> collectedTags = mappedTags.entrySet().stream()
+                .map(e -> new TagsResponse(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
         return new ResponseEntity<>(collectedTags, OK);
     }
 

@@ -1,22 +1,20 @@
 package com.xebia.fs101.writerpad.response;
 
-import java.math.BigInteger;
-
 public class TagsResponse {
-    String tag;
-    BigInteger occurence;
+    private String tag;
+    private Long occurence;
 
     public String getTag() {
 
         return tag;
     }
 
-    public BigInteger getOccurence() {
+    public Long getOccurence() {
 
         return occurence;
     }
 
-    public TagsResponse(String tag, BigInteger occurence) {
+    public TagsResponse(String tag, Long occurence) {
 
         this.tag = tag;
         this.occurence = occurence;

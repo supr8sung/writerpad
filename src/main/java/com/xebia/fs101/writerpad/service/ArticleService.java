@@ -1,6 +1,7 @@
 package com.xebia.fs101.writerpad.service;
 
 import com.xebia.fs101.writerpad.entity.Article;
+import com.xebia.fs101.writerpad.exception.ArticleNotFoundException;
 import com.xebia.fs101.writerpad.model.ArticleStatus;
 import com.xebia.fs101.writerpad.model.ReadingTime;
 import com.xebia.fs101.writerpad.repository.ArticleRepository;
@@ -13,12 +14,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
+import javax.transaction.Transactional;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.xebia.fs101.writerpad.model.ArticleStatus.PUBLISHED;
 
@@ -26,7 +27,7 @@ import static com.xebia.fs101.writerpad.model.ArticleStatus.PUBLISHED;
 public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
-    @Value("${averageTimeToRead}")
+    @Value("${average.words.per.minute}")
     int averageTime;
 
     public Article add(ArticleRequest articleRequest) {
@@ -45,9 +46,10 @@ public class ArticleService {
         return articleRepository.findAll(pageable);
     }
 
-    public Page<Article> findAllByStatus(ArticleStatus status, Pageable pageable) {
+    public Page<Article> findAllByStatus(String status, Pageable pageable) {
 
-        return articleRepository.findAllByStatus(status, pageable);
+        return articleRepository.findAllByStatus(
+                ArticleStatus.valueOf(status.toUpperCase()), pageable);
     }
 
     public Article findOne(String slugId) {
@@ -56,25 +58,19 @@ public class ArticleService {
                 ArticleNotFoundException::new);
     }
 
-    public boolean delete(String slugId) {
+    public void delete(String slugId) {
 
         UUID id = StringUtils.extractUuid(slugId);
-        if (articleRepository.findById(id).isPresent()) {
-            articleRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        articleRepository.findById(id).orElseThrow(ArticleNotFoundException::new);
+        articleRepository.deleteById(id);
     }
 
-    public Optional<Article> update(String slugId, Article copyFrom) {
+    public Article update(String slugId, Article copyFrom) {
 
-        Optional<Article> optionalArticle = articleRepository.findById(
-                StringUtils.extractUuid(slugId));
-        if (optionalArticle.isPresent()) {
-            Article articleToBeUpdated = optionalArticle.get().update(copyFrom);
-            return Optional.of(articleRepository.save(articleToBeUpdated));
-        }
-        return Optional.empty();
+        Article article = articleRepository.findById(StringUtils.extractUuid(slugId))
+                .orElseThrow(ArticleNotFoundException::new);
+        Article articleToBeUpdated = article.update(copyFrom);
+        return articleRepository.save(articleToBeUpdated);
     }
 
     public ReadingTimeResponse calculateReadingTime(Article article) {
@@ -94,15 +90,12 @@ public class ArticleService {
         }
     }
 
+    @Transactional
     public Map<String, Long> getAllTags() {
 
-        List<String> tags = articleRepository.findAll().stream()
-                .map(Article::getTags)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-        Map<String, Long> collect = tags.stream()
-                .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
-        return collect;
+        Stream<String> tags = articleRepository.findTags();
+        return tags.collect(
+                Collectors.groupingBy(e -> e, Collectors.counting()));
     }
 
     public Article markFavourite(String slugId) {
@@ -118,16 +111,12 @@ public class ArticleService {
 
         Article article = articleRepository.findById(StringUtils.extractUuid(slugId))
                 .orElseThrow(ArticleNotFoundException::new);
-        long currentCount = article.getFavoritesCount();
-        if (currentCount == 0)
-            return article;
-        else if (currentCount == 1) {
+        if (article.getFavoritesCount() <= 1) {
             article.setFavorited(false);
             article.setFavoritesCount(0);
             return articleRepository.save(article);
         }
-        article.setFavorited(true);
-        article.setFavoritesCount(currentCount - 1);
+        article.setFavoritesCount(article.getFavoritesCount() - 1);
         return articleRepository.save(article);
     }
 }

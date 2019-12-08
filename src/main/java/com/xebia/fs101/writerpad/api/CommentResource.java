@@ -37,8 +37,8 @@ public class CommentResource {
 
     @PostMapping(path = "{slug_id}/comments")
     public ResponseEntity add(@PathVariable(value = "slug_id") String slugId,
-                                    @Valid @RequestBody CommentRequest commentRequest,
-                                    HttpServletRequest request) throws IOException {
+                              @Valid @RequestBody CommentRequest commentRequest,
+                              HttpServletRequest request) throws IOException {
 
         if (spamChecker.isSpam(commentRequest.getBody()))
             return ResponseEntity.status(BAD_REQUEST).build();
