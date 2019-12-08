@@ -1,6 +1,5 @@
 package com.xebia.fs101.writerpad.api;
 
-import com.xebia.fs101.writerpad.entity.Article;
 import com.xebia.fs101.writerpad.entity.Comment;
 import com.xebia.fs101.writerpad.request.CommentRequest;
 import com.xebia.fs101.writerpad.service.ArticleService;
@@ -37,21 +36,13 @@ public class CommentResource {
     private ArticleService articleService;
 
     @PostMapping(path = "{slug_id}/comments")
-    public ResponseEntity<Void> add(@PathVariable(value = "slug_id") String slugId,
+    public ResponseEntity add(@PathVariable(value = "slug_id") String slugId,
                                     @Valid @RequestBody CommentRequest commentRequest,
-                                    HttpServletRequest request) {
+                                    HttpServletRequest request) throws IOException {
 
-        try {
-            if (spamChecker.isSpam(commentRequest.getBody())) {
-                return ResponseEntity.status(BAD_REQUEST).build();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Article article = articleService.findOne(slugId);
-        Comment comment = commentRequest.toComment(article,
-                                                   request.getRemoteAddr());
-        commentService.postComment(comment);
+        if (spamChecker.isSpam(commentRequest.getBody()))
+            return ResponseEntity.status(BAD_REQUEST).build();
+        commentService.postComment(commentRequest, slugId, request.getRemoteAddr());
         return ResponseEntity.status(CREATED).build();
     }
 
@@ -67,8 +58,7 @@ public class CommentResource {
     public ResponseEntity<Void> delete(@PathVariable(value = "slug_id") String slugId,
                                        @PathVariable(value = "id") Long id) {
 
-        return this.commentService.deleteComment(id)
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+        commentService.deleteComment(id);
+        return ResponseEntity.noContent().build();
     }
 }

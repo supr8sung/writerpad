@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +53,7 @@ public class ArticleService {
     public Article findOne(String slugId) {
 
         return articleRepository.findById(StringUtils.extractUuid(slugId)).orElseThrow(
-                () -> new ArticleNotFoundException("article not found"));
+                ArticleNotFoundException::new);
     }
 
     public boolean delete(String slugId) {
@@ -95,10 +94,8 @@ public class ArticleService {
         }
     }
 
-    //this method is using findALl method of JPA
     public Map<String, Long> getAllTags() {
 
-        List<Article> all = articleRepository.findAll();
         List<String> tags = articleRepository.findAll().stream()
                 .map(Article::getTags)
                 .flatMap(Collection::stream)
@@ -108,17 +105,10 @@ public class ArticleService {
         return collect;
     }
 
-    //this method is using query defined in articleRepository interface
-    public Map<String, BigInteger> getAllTags2() {
-
-        return articleRepository.findAllTags().stream().collect(
-                Collectors.toMap(a -> (String) a[0], a -> (BigInteger) a[1]));
-    }
-
     public Article markFavourite(String slugId) {
 
         Article article = articleRepository.findById(StringUtils.extractUuid(slugId))
-                .orElseThrow(() -> new ArticleNotFoundException("article not found"));
+                .orElseThrow(ArticleNotFoundException::new);
         article.setFavorited(true);
         article.setFavoritesCount(article.getFavoritesCount() + 1);
         return articleRepository.save(article);
@@ -127,7 +117,7 @@ public class ArticleService {
     public Article deleteFavourite(String slugId) {
 
         Article article = articleRepository.findById(StringUtils.extractUuid(slugId))
-                .orElseThrow(() -> new ArticleNotFoundException("article not found"));
+                .orElseThrow(ArticleNotFoundException::new);
         long currentCount = article.getFavoritesCount();
         if (currentCount == 0)
             return article;

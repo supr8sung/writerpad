@@ -28,7 +28,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -128,26 +130,14 @@ public class ArticleResource {
         return new ResponseEntity<>(readingTimeResponse, OK);
     }
 
-    //    @GetMapping(path = "/tags")
-//    public ResponseEntity<List<TagsResponse>> tags() {
-//
-//        Map<String, Long> mappedTags = articleService.getAllTags();
-//        List<TagsResponse> collectedTags = mappedTags.entrySet().stream()
-//                .map(e -> new TagsResponse(e.getKey(), BigInteger.valueOf(e.getValue
-//                ())))
-//                .collect(Collectors.toList());
-//        if (mappedTags.isEmpty())
-//            return ResponseEntity.noContent().build();
-//        return new ResponseEntity<>(collectedTags, OK);
-//    }
     @GetMapping(path = "/tags")
     public ResponseEntity<List<TagsResponse>> tags() {
 
-        List<TagsResponse> collectedTags = articleService.getAllTags2().entrySet()
-                .stream()
-                .map(e -> new TagsResponse(e.getKey(), e.getValue()))
+        Map<String, Long> mappedTags = articleService.getAllTags();
+        List<TagsResponse> collectedTags = mappedTags.entrySet().stream()
+                .map(e -> new TagsResponse(e.getKey(), BigInteger.valueOf(e.getValue())))
                 .collect(Collectors.toList());
-        if (collectedTags.isEmpty())
+        if (mappedTags.isEmpty())
             return ResponseEntity.noContent().build();
         return new ResponseEntity<>(collectedTags, OK);
     }

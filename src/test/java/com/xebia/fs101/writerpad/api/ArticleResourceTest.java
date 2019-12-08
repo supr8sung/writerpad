@@ -54,11 +54,7 @@ class ArticleResourceTest {
         articleRepository.deleteAll();
     }
 
-    @Test
-    void mock_mvc_should_be_set() {
 
-        assertThat(mockMvc).isNotNull();
-    }
 
     @Test
     void should_get_response() throws Exception {
@@ -186,8 +182,9 @@ class ArticleResourceTest {
         articleRepository.saveAll(Arrays.asList(article1, article2, article3));
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/articles?page=0&size=1")).andDo(
-                MockMvcResultHandlers.print()).andExpect(status().isOk()).andExpect(
-                jsonPath("$.length()").value(1));
+                MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
     }
 
     @Test
@@ -229,12 +226,10 @@ class ArticleResourceTest {
     @Test
     public void should_give_reading_time_for_any_article() throws Exception {
 
-
-        String body= IntStream.range(1, 400)
+        String body = IntStream.range(1, 400)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(" "));
-        Article article=createArticle("title",body,"desc");
-
+        Article article = createArticle("title", body, "desc");
         Article savedArticle = articleRepository.save(article);
         this.mockMvc.perform(get("/api/articles/{slug_id}/timetoread",
                                  slugIdGenerator.apply(savedArticle)))
@@ -288,11 +283,8 @@ class ArticleResourceTest {
                                     slugIdGenerator.apply(savedArticle)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-
         Optional<Article> article1 = articleRepository.findById(savedArticle.getId());
         assertThat(article1.get().getFavoritesCount()).isEqualTo(3L);
-
-
     }
 
     private Article createArticle(String title, String body, String description) {

@@ -8,10 +8,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 @Component
 @Profile("!test")
@@ -28,8 +26,7 @@ public class GmailService implements EmailService {
     @Value("$")
     private String property;
 
-    public void sendMail() throws MailException, ExecutionException,
-            InterruptedException {
+    public void sendMail() throws MailException {
 
         Runnable runnable = () -> {
             SimpleMailMessage mailMessage = new SimpleMailMessage();
@@ -40,7 +37,6 @@ public class GmailService implements EmailService {
             javaMailSender.send(mailMessage);
         };
         this.executorService = Executors.newSingleThreadExecutor();
-        Future<?> submit = executorService.submit(runnable);
-        // submit.get();
+        executorService.submit(runnable);
     }
 }
