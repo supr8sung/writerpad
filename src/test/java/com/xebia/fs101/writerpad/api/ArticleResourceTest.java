@@ -373,6 +373,81 @@ class ArticleResourceTest {
         assertThat(article1.get().getFavoritesCount()).isEqualTo(3L);
     }
 
+    @Test
+    void should_be_able_to_update_an_article_by_authorized_user() throws Exception {
+
+        UserRequest userRequest1 = new UserRequest("user1", "user useless",
+                                                   "user1@gmail.com",
+                                                   "1234");
+        UserRequest userRequest2 = new UserRequest("user2", "user useless",
+                                                   "user2@gmail.com",
+                                                   "1234");
+        User user1 = userRequest1.toUser(passwordEncoder);
+        User user2 = userRequest2.toUser(passwordEncoder);
+        userRepository.saveAll(Arrays.asList(user1, user2));
+        Article article = new Article.Builder().withBody("old Body").withDescription(
+                "old desc").withTitle("old title").build();
+        article.setUser(user1);
+        Article savedArticle = articleRepository.save(article);
+        ArticleRequest updatedArticleRequest =
+                new ArticleRequest.Builder().withBody("new body").withTitle(
+                        "new title").withDescription("new desc").build();
+        String json = objectMapper.writeValueAsString(updatedArticleRequest);
+        this.mockMvc.perform(
+                patch("/api/articles/{id}",
+                      slugIdGenerator.apply(savedArticle)).contentType(
+                        MediaType.APPLICATION_JSON).content(json).with(
+                        httpBasic("user1", "1234"))).andDo(
+                print()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("new title"))
+                .andExpect(jsonPath("$.body").value("new body"))
+                .andExpect(jsonPath("$.updatedAt",
+                                    CoreMatchers.not(savedArticle.getUpdatedAt())));
+    }
+
+    @Test
+    void should_not_update_an_article_by_unauthorized_user() throws Exception {
+
+        UserRequest userRequest1 = new UserRequest("user1", "user useless",
+                                                   "user1@gmail.com",
+                                                   "1234");
+        UserRequest userRequest2 = new UserRequest("user2", "user useless",
+                                                   "user2@gmail.com",
+                                                   "1234");
+        User user1 = userRequest1.toUser(passwordEncoder);
+        User user2 = userRequest2.toUser(passwordEncoder);
+        userRepository.saveAll(Arrays.asList(user1, user2));
+        Article article = new Article.Builder().withBody("old Body").withDescription(
+                "old desc").withTitle("old title").build();
+        article.setUser(user1);
+        Article savedArticle = articleRepository.save(article);
+        ArticleRequest updatedArticleRequest =
+                new ArticleRequest.Builder().withBody("new body").withTitle(
+                        "new title").withDescription("new desc").build();
+        String json = objectMapper.writeValueAsString(updatedArticleRequest);
+        this.mockMvc.perform(
+                patch("/api/articles/{id}",
+                      slugIdGenerator.apply(savedArticle)).contentType(
+                        MediaType.APPLICATION_JSON).content(json).with(
+                        httpBasic("user2", "1234"))).andDo(
+                print()).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void should_not_delete_article_if_user_not_authorized() throws Exception {
+
+        Article article = new Article.Builder().withBody("abc").withDescription(
+                "efef").withTitle("fefe").build();
+        article.setUser(user);
+        Article saved = articleRepository.save(article);
+        this.mockMvc.perform(
+                delete("/api/articles/{id}", slugIdGenerator.apply(saved))
+                        .contentType(MediaType.APPLICATION_JSON).with(
+                        httpBasic("user1", "1234")))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
     private Article createArticle(String title, String body, String description) {
 
         Article article = new Article.Builder().withTitle(title).withBody(

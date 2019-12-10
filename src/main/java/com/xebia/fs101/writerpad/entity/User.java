@@ -1,5 +1,7 @@
 package com.xebia.fs101.writerpad.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,6 +25,7 @@ public class User {
     @NotBlank
     private String password;
     @OneToMany(mappedBy = "user")
+    @JsonBackReference
     private List<Article> articles;
 
     public User() {

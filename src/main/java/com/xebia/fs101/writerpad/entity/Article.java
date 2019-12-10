@@ -1,6 +1,7 @@
 package com.xebia.fs101.writerpad.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.xebia.fs101.writerpad.model.ArticleStatus;
 import com.xebia.fs101.writerpad.utils.StringUtils;
 
@@ -48,6 +49,7 @@ public class Article {
     @OneToMany(mappedBy = "article")
     private List<Comment> comment;
     @ManyToOne(optional = false)
+    @JsonManagedReference
     private User user;
 
     public Article() {

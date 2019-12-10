@@ -76,7 +76,6 @@ public class ArticleResource {
     create(@AuthenticationPrincipal User user,
            @Valid @RequestBody ArticleRequest articleRequest) {
 
-        System.out.println(user);
         Article article = new Article.Builder().
                 withTitle(articleRequest.getTitle()).withBody(
                 articleRequest.getBody()).withDescription(
@@ -87,6 +86,17 @@ public class ArticleResource {
         return new ResponseEntity<>(ArticleResponse.from(savedArticle), CREATED);
     }
 
+    @PatchMapping(path = "/{slug_id}")
+    public ResponseEntity<Article> update(@AuthenticationPrincipal User user,
+                                          @RequestBody ArticleRequest articleRequest,
+                                          @PathVariable(value = "slug_id") String slugId) {
+
+        System.out.println("@@@@@@@@@@@" + user);
+        Article article = articleRequest.toArticle();
+        Article updatedArticle = articleService.update(slugId, article, user);
+        return new ResponseEntity<>(updatedArticle, OK);
+    }
+
     @GetMapping(path = "/{slug_id}")
     public ResponseEntity<Article> getById(@PathVariable(value = "slug_id") String slugId) {
 
@@ -94,19 +104,11 @@ public class ArticleResource {
     }
 
     @DeleteMapping(path = "/{slug_id}")
-    public ResponseEntity<Void> delete(@PathVariable(value = "slug_id") String slugId) {
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal User user,
+                                       @PathVariable(value = "slug_id") String slugId) {
 
-        articleService.delete(slugId);
+        articleService.delete(slugId, user);
         return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping(path = "/{slug_id}")
-    public ResponseEntity<Article> update(@RequestBody ArticleRequest articleRequest,
-                                          @PathVariable(value = "slug_id") String slugId) {
-
-        Article article = articleRequest.toArticle();
-        Article updatedArticle = articleService.update(slugId, article);
-        return new ResponseEntity<>(updatedArticle, OK);
     }
 
     @PostMapping(path = "/{slug_id}/{status}")
