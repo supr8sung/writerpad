@@ -1,7 +1,9 @@
 package com.xebia.fs101.writerpad.service;
 
 import com.xebia.fs101.writerpad.entity.Article;
+import com.xebia.fs101.writerpad.entity.User;
 import com.xebia.fs101.writerpad.repository.ArticleRepository;
+import com.xebia.fs101.writerpad.repository.UserRepository;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.response.ReadingTimeResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +21,8 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -27,6 +31,8 @@ import static org.mockito.Mockito.when;
 class ArticleServiceTest {
     @Mock
     private ArticleRepository articleRepository;
+    @Mock
+    private UserRepository userRepository;
     @InjectMocks
     private ArticleService articleService;
 
@@ -39,10 +45,8 @@ class ArticleServiceTest {
     @Test
     void should_be_able_to_save_an_article() {
 
-        ArticleRequest articleRequest =
-                new ArticleRequest.Builder().withBody("body").withDescription(
-                        "description").withTitle("title").build();
-        articleService.add(articleRequest);
+        when(userRepository.findById(any())).thenReturn(Optional.of(new User()));
+        articleService.add(new Article(),new User());
         verify(articleRepository).save(any());
     }
 

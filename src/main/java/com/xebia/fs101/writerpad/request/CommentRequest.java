@@ -9,11 +9,6 @@ public class CommentRequest {
     @NotBlank
     private String body;
 
-    public String getBody() {
-
-        return body;
-    }
-
     public CommentRequest() {
 
     }
@@ -21,6 +16,11 @@ public class CommentRequest {
     public CommentRequest(@NotBlank String body) {
 
         this.body = body;
+    }
+
+    public String getBody() {
+
+        return body;
     }
 
     public Comment toComment(Article article, String ipAdress) {

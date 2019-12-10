@@ -51,6 +51,16 @@ public class ArticleRequest {
         return tags == null ? new ArrayList<String>() : tags;
     }
 
+    public Article toArticle() {
+
+        return new Article.Builder()
+                .withBody(this.getBody())
+                .withTitle(this.getTitle())
+                .withDescription(this.getDescription())
+                .withTags(this.tags)
+                .build();
+    }
+
     public static final class Builder {
         private String title;
         private String description;
@@ -89,15 +99,5 @@ public class ArticleRequest {
 
             return new ArticleRequest(this);
         }
-    }
-
-    public Article toArticle() {
-
-        return new Article.Builder()
-                .withBody(this.getBody())
-                .withTitle(this.getTitle())
-                .withDescription(this.getDescription())
-                .withTags(this.tags)
-                .build();
     }
 }

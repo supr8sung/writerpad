@@ -12,6 +12,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import java.util.ArrayList;
@@ -46,9 +47,26 @@ public class Article {
     @JsonBackReference
     @OneToMany(mappedBy = "article")
     private List<Comment> comment;
+    @ManyToOne(optional = false)
+    private User user;
 
     public Article() {
 
+    }
+
+    public Article(Builder builder) {
+
+        id = builder.id;
+        tags = builder.tags;
+        title = builder.title;
+        body = builder.body;
+        createdAt = new Date();
+        updatedAt = new Date();
+        favoritesCount = builder.favoritesCount;
+        favorited = builder.favorited;
+        description = builder.description;
+        slug = StringUtils.slugify(this.title);
+        status = ArticleStatus.DRAFT;
     }
 
     public UUID getId() {
@@ -61,14 +79,14 @@ public class Article {
         return StringUtils.slugify(this.title);
     }
 
-    public void setTitle(String title) {
-
-        this.title = title;
-    }
-
     public String getTitle() {
 
         return title;
+    }
+
+    public void setTitle(String title) {
+
+        this.title = title;
     }
 
     public ArticleStatus getStatus() {
@@ -91,6 +109,16 @@ public class Article {
         return body;
     }
 
+    public User getUser() {
+
+        return user;
+    }
+
+    public void setUser(User user) {
+
+        this.user = user;
+    }
+
     public List<String> getTags() {
 
         return tags;
@@ -111,14 +139,14 @@ public class Article {
         return favorited;
     }
 
-    public long getFavoritesCount() {
-
-        return favoritesCount;
-    }
-
     public void setFavorited(boolean favorited) {
 
         this.favorited = favorited;
+    }
+
+    public long getFavoritesCount() {
+
+        return favoritesCount;
     }
 
     public void setFavoritesCount(long favoritesCount) {
@@ -151,22 +179,8 @@ public class Article {
         return this;
     }
 
-    public Article(Builder builder) {
-
-        id = builder.id;
-        tags = builder.tags;
-        title = builder.title;
-        body = builder.body;
-        createdAt = new Date();
-        updatedAt = new Date();
-        favoritesCount = builder.favoritesCount;
-        favorited = builder.favorited;
-        description = builder.description;
-        slug = StringUtils.slugify(this.title);
-        status = ArticleStatus.DRAFT;
-    }
-
     public static final class Builder {
+        public ArticleStatus status;
         private UUID id;
         private String slug;
         private String title;
@@ -175,7 +189,6 @@ public class Article {
         private List<String> tags;
         private Date createdAt;
         private Date updatedAt;
-        public ArticleStatus status;
         private boolean favorited = false;
         private long favoritesCount = 0;
 

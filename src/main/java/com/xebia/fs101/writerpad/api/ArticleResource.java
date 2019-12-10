@@ -1,7 +1,9 @@
 package com.xebia.fs101.writerpad.api;
 
 import com.xebia.fs101.writerpad.entity.Article;
+import com.xebia.fs101.writerpad.entity.User;
 import com.xebia.fs101.writerpad.exception.ArticleNotFoundException;
+import com.xebia.fs101.writerpad.representations.ArticleResponse;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.response.ReadingTimeResponse;
 import com.xebia.fs101.writerpad.response.TagsResponse;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,7 +43,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @ControllerAdvice
 @RestController
-@RequestMapping("/api/articles")
+@RequestMapping("api/articles")
 public class ArticleResource {
     @Autowired
     private ArticleService articleService;
@@ -69,10 +72,19 @@ public class ArticleResource {
     }
 
     @PostMapping
-    public ResponseEntity<Article> create(@Valid @RequestBody ArticleRequest articleRequest) {
+    public ResponseEntity<ArticleResponse>
+    create(@AuthenticationPrincipal User user,
+           @Valid @RequestBody ArticleRequest articleRequest) {
 
-        Article savedArticle = articleService.add(articleRequest);
-        return new ResponseEntity<>(savedArticle, CREATED);
+        System.out.println(user);
+        Article article = new Article.Builder().
+                withTitle(articleRequest.getTitle()).withBody(
+                articleRequest.getBody()).withDescription(
+                articleRequest.getDescription()).withTags(articleRequest.getTags().
+                stream().map(tag -> tag.replaceAll(" ", "-").toLowerCase()).collect(
+                Collectors.toList())).build();
+        Article savedArticle = articleService.add(article, user);
+        return new ResponseEntity<>(ArticleResponse.from(savedArticle), CREATED);
     }
 
     @GetMapping(path = "/{slug_id}")

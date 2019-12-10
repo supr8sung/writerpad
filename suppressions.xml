@@ -9,6 +9,7 @@
     <suppress checks="HideUtilityClassConstructor" files="WriterpadApplication.java" />
     <suppress checks="NewlineAtEndOfFile" files="WriterpadApplication.java"/>
     <suppress checks="NewlineAtEndOfFile" files="application.properties"/>
+    <suppress checks="ReduntantModifier" files="ArticleResponse.java"/>
     <!-- don't validate generated files -->
 
 

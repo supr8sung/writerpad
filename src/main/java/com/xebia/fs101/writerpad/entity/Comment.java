@@ -30,13 +30,22 @@ public class Comment {
     private Article article;
     private String ipAddress;
 
+    public Comment() {
+
+    }
+
+    public Comment(Builder builder) {
+
+        this.body = builder.body;
+        this.createAt = new Date();
+        this.updatedAt = new Date();
+        this.article = builder.article;
+        this.ipAddress = builder.ipAddress;
+    }
+
     public String getIpAddress() {
 
         return ipAddress;
-    }
-
-    public Comment() {
-
     }
 
     public Article getArticle() {
@@ -64,13 +73,20 @@ public class Comment {
         return updatedAt;
     }
 
-    public Comment(Builder builder) {
+    @Override
+    public String toString() {
 
-        this.body = builder.body;
-        this.createAt = new Date();
-        this.updatedAt = new Date();
-        this.article = builder.article;
-        this.ipAddress = builder.ipAddress;
+        return "Comment{"
+                + "id="
+                + id
+                + ", body='"
+                + body
+                + '\''
+                + ", createAt="
+                + createAt
+                + ", updatedAt="
+                + updatedAt
+                + '}';
     }
 
     public static final class Builder {
@@ -130,21 +146,5 @@ public class Comment {
 
             return new Comment(this);
         }
-    }
-
-    @Override
-    public String toString() {
-
-        return "Comment{"
-                + "id="
-                + id
-                + ", body='"
-                + body
-                + '\''
-                + ", createAt="
-                + createAt
-                + ", updatedAt="
-                + updatedAt
-                + '}';
     }
 }

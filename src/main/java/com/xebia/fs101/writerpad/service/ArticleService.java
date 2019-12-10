@@ -1,11 +1,12 @@
 package com.xebia.fs101.writerpad.service;
 
 import com.xebia.fs101.writerpad.entity.Article;
+import com.xebia.fs101.writerpad.entity.User;
 import com.xebia.fs101.writerpad.exception.ArticleNotFoundException;
 import com.xebia.fs101.writerpad.model.ArticleStatus;
 import com.xebia.fs101.writerpad.model.ReadingTime;
 import com.xebia.fs101.writerpad.repository.ArticleRepository;
-import com.xebia.fs101.writerpad.request.ArticleRequest;
+import com.xebia.fs101.writerpad.repository.UserRepository;
 import com.xebia.fs101.writerpad.response.ReadingTimeResponse;
 import com.xebia.fs101.writerpad.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,20 +26,19 @@ import static com.xebia.fs101.writerpad.model.ArticleStatus.PUBLISHED;
 
 @Service
 public class ArticleService {
-    @Autowired
-    private ArticleRepository articleRepository;
     @Value("${average.words.per.minute}")
     int averageTime;
+    @Autowired
+    private ArticleRepository articleRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    public Article add(ArticleRequest articleRequest) {
+    public Article add(Article article, User user) {
 
-        Article article = new Article.Builder().
-                withTitle(articleRequest.getTitle()).withBody(
-                articleRequest.getBody()).withDescription(
-                articleRequest.getDescription()).withTags(articleRequest.getTags().
-                stream().map(tag -> tag.replaceAll(" ", "-").toLowerCase()).collect(
-                Collectors.toList())).build();
-        return articleRepository.save(article);
+        Optional<User> optionalUser = userRepository.findById(user.getId());
+        User foundUser = optionalUser.get();
+        article.setUser(foundUser);
+        return this.articleRepository.save(article);
     }
 
     public Page<Article> findAll(Pageable pageable) {

@@ -4,6 +4,12 @@ public class TagsResponse {
     private String tag;
     private Long occurence;
 
+    public TagsResponse(String tag, Long occurence) {
+
+        this.tag = tag;
+        this.occurence = occurence;
+    }
+
     public String getTag() {
 
         return tag;
@@ -12,11 +18,5 @@ public class TagsResponse {
     public Long getOccurence() {
 
         return occurence;
-    }
-
-    public TagsResponse(String tag, Long occurence) {
-
-        this.tag = tag;
-        this.occurence = occurence;
     }
 }
