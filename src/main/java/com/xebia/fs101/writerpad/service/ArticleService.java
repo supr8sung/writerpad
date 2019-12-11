@@ -36,8 +36,7 @@ public class ArticleService {
 
     public Article add(Article article, User user) {
 
-        Optional<User> optionalUser = userRepository.findById(user.getId());
-        User foundUser = optionalUser.get();
+        User foundUser = userRepository.getOne(user.getId());
         article.setUser(foundUser);
         return this.articleRepository.save(article);
     }
@@ -64,7 +63,7 @@ public class ArticleService {
         UUID id = StringUtils.extractUuid(slugId);
         Article article = articleRepository.findById(id).orElseThrow(
                 ArticleNotFoundException::new);
-        if (!article.getUser().getUsername().equals(user.getUsername()))
+        if (!article.getUser().equals(userRepository.getOne(user.getId())))
             throw new UserNotAuthorizedException(
                     "User not athorized to delte the article");
         articleRepository.deleteById(id);
@@ -74,7 +73,7 @@ public class ArticleService {
 
         Article article = articleRepository.findById(StringUtils.extractUuid(slugId))
                 .orElseThrow(ArticleNotFoundException::new);
-        if (!article.getUser().getUsername().equals(user.getUsername()))
+        if (!article.getUser().equals(userRepository.getOne(user.getId())))
             throw new UserNotAuthorizedException(
                     "User not authorized to update the article");
         Article articleToBeUpdated = article.update(copyFrom);

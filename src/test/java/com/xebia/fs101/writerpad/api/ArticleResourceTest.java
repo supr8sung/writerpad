@@ -97,6 +97,11 @@ class ArticleResourceTest {
                                 .content(json).with(httpBasic("user", "1234"))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/articles")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .content(json).with(httpBasic("user", "1234"))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
     }
 
     @Test

@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,9 +40,8 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-@ControllerAdvice
 @RestController
-@RequestMapping("api/articles")
+@RequestMapping("/api/articles")
 public class ArticleResource {
     @Autowired
     private ArticleService articleService;
@@ -62,13 +60,16 @@ public class ArticleResource {
     }
 
     @RequestMapping(params = "status", method = GET)
-    public ResponseEntity<List<Article>> getAllByStatus(@RequestParam(value = "status"
+    public ResponseEntity<List<ArticleResponse>> getAllByStatus(@RequestParam(value =
+            "status"
     ) String status, Pageable pageable) {
 
         Page<Article> pageResult = articleService.findAllByStatus(status, pageable);
         if (!pageResult.hasContent())
             return ResponseEntity.status(NO_CONTENT).build();
-        return new ResponseEntity<>(pageResult.getContent(), OK);
+        List<ArticleResponse> articleResponses = pageResult.getContent().stream().map(
+                ArticleResponse::from).collect(Collectors.toList());
+        return new ResponseEntity<>(articleResponses, OK);
     }
 
     @PostMapping
@@ -87,20 +88,20 @@ public class ArticleResource {
     }
 
     @PatchMapping(path = "/{slug_id}")
-    public ResponseEntity<Article> update(@AuthenticationPrincipal User user,
-                                          @RequestBody ArticleRequest articleRequest,
-                                          @PathVariable(value = "slug_id") String slugId) {
+    public ResponseEntity<ArticleResponse> update(@AuthenticationPrincipal User user,
+                                                  @RequestBody ArticleRequest articleRequest,
+                                                  @PathVariable(value = "slug_id") String slugId) {
 
-        System.out.println("@@@@@@@@@@@" + user);
         Article article = articleRequest.toArticle();
         Article updatedArticle = articleService.update(slugId, article, user);
-        return new ResponseEntity<>(updatedArticle, OK);
+        return new ResponseEntity<>(ArticleResponse.from(updatedArticle), OK);
     }
 
     @GetMapping(path = "/{slug_id}")
-    public ResponseEntity<Article> getById(@PathVariable(value = "slug_id") String slugId) {
+    public ResponseEntity<ArticleResponse> getById(@PathVariable(value = "slug_id") String slugId) {
 
-        return new ResponseEntity<>(articleService.findOne(slugId), OK);
+        Article article = articleService.findOne(slugId);
+        return new ResponseEntity<>(ArticleResponse.from(article), OK);
     }
 
     @DeleteMapping(path = "/{slug_id}")

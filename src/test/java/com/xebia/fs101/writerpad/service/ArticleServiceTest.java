@@ -42,7 +42,7 @@ class ArticleServiceTest {
     @Test
     void should_be_able_to_save_an_article() {
 
-        when(userRepository.findById(any())).thenReturn(Optional.of(new User()));
+       // when(userRepository.findById(any())).thenReturn(Optional.of(new User()));
         articleService.add(new Article(), new User());
         verify(articleRepository).save(any());
     }
@@ -57,6 +57,7 @@ class ArticleServiceTest {
                 "").withDescription("").build();
         article.setUser(user);
         when(articleRepository.findById(id)).thenReturn(Optional.of(article));
+        when(userRepository.getOne(any())).thenReturn(user);
         articleService.delete("slug" + id, user);
         verify(articleRepository).findById(id);
         verify(articleRepository).deleteById(id);
@@ -90,7 +91,7 @@ class ArticleServiceTest {
         article.setUser(user);
         when(articleRepository.findById(any())).thenReturn(
                 Optional.of(article));
-        //when(articleRepository.save(any())).thenReturn(new Article());
+        when(userRepository.getOne(any())).thenReturn(user);
         articleService.update("id" + UUID.randomUUID(), article, user);
         verify(articleRepository).findById(any());
         verify(articleRepository).save(any());
