@@ -97,11 +97,6 @@ class ArticleResourceTest {
                                 .content(json).with(httpBasic("user", "1234"))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        mockMvc.perform(post("/api/articles")
-                                .accept(MediaType.APPLICATION_JSON)
-                                .content(json).with(httpBasic("user", "1234"))
-                                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
     }
 
     @Test
@@ -439,7 +434,7 @@ class ArticleResourceTest {
     }
 
     @Test
-    public void should_not_delete_article_if_user_not_authorized() throws Exception {
+    void should_not_delete_article_if_user_not_authorized() throws Exception {
 
         Article article = new Article.Builder().withBody("abc").withDescription(
                 "efef").withTitle("fefe").build();
@@ -452,6 +447,43 @@ class ArticleResourceTest {
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void should_not_post_article_if_similar_article_is_already_registered() throws Exception {
+
+        Article article = createArticle("title", "body", "desc");
+        article.setUser(user);
+        articleRepository.save(article);
+        ArticleRequest articleRequest = new ArticleRequest.Builder().withBody(
+                "body").withTitle("title").withDescription("desc").build();
+        String json = objectMapper.writeValueAsString(articleRequest);
+        this.mockMvc.perform(post("/api/articles")
+                                     .contentType(MediaType.APPLICATION_JSON)
+                                     .content(json)
+                                     .with(httpBasic("user", "1234")))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    void should_update_article_if_same_user_is_updating_it_without_checking_for_plagiarism() throws Exception {
+
+        Article article = createArticle("title", "body", "desc");
+        Article article2 = createArticle("title2", "random2", "desc3");
+        article.setUser(user);
+        article2.setUser(user);
+        Article savedArticle = articleRepository.save(article);
+        articleRepository.save(article2);
+        ArticleRequest articleRequest = new ArticleRequest.Builder().withBody(
+                "body").withTitle("title").withDescription("desc").build();
+        String json = objectMapper.writeValueAsString(articleRequest);
+        this.mockMvc.perform(patch("/api/articles/{slug_id}",slugIdGenerator.apply(savedArticle))
+                                     .contentType(MediaType.APPLICATION_JSON)
+                                     .content(json)
+                                     .with(httpBasic("user", "1234")))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 
     private Article createArticle(String title, String body, String description) {
 

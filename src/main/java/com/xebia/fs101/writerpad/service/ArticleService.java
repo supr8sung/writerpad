@@ -2,6 +2,7 @@ package com.xebia.fs101.writerpad.service;
 
 import com.xebia.fs101.writerpad.entity.Article;
 import com.xebia.fs101.writerpad.entity.User;
+import com.xebia.fs101.writerpad.exception.ArticleAlreadyCreatedException;
 import com.xebia.fs101.writerpad.exception.ArticleNotFoundException;
 import com.xebia.fs101.writerpad.exception.UserNotAuthorizedException;
 import com.xebia.fs101.writerpad.model.ArticleStatus;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,9 +35,16 @@ public class ArticleService {
     private ArticleRepository articleRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PlagiarismFinderService plagiarismFinderService;
 
     public Article add(Article article, User user) {
 
+        List<String> target = articleRepository.findAll().parallelStream().map(
+                Article::getBody).collect(
+                Collectors.toList());
+        if (plagiarismFinderService.isPlagiarism(article.getBody(), target))
+            throw new ArticleAlreadyCreatedException("Same article found");
         User foundUser = userRepository.getOne(user.getId());
         article.setUser(foundUser);
         return this.articleRepository.save(article);
@@ -71,8 +80,13 @@ public class ArticleService {
 
     public Article update(String slugId, Article copyFrom, User user) {
 
-        Article article = articleRepository.findById(StringUtils.extractUuid(slugId))
-                .orElseThrow(ArticleNotFoundException::new);
+        Article article = this.findOne(slugId);
+        List<String> target = articleRepository.findAll().parallelStream()
+                .filter(e -> e != article)
+                .map(Article::getBody)
+                .collect(Collectors.toList());
+        if (plagiarismFinderService.isPlagiarism(copyFrom.getBody(), target))
+            throw new ArticleAlreadyCreatedException("Same article found");
         if (!article.getUser().equals(userRepository.getOne(user.getId())))
             throw new UserNotAuthorizedException(
                     "User not authorized to update the article");

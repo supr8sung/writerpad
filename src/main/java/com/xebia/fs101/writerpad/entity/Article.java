@@ -42,7 +42,10 @@ public class Article {
     private Date createdAt;
     private Date updatedAt;
     private boolean favorited;
+    private String image;
+
     private long favoritesCount;
+
     @Enumerated(EnumType.STRING)
     private ArticleStatus status;
     @JsonBackReference
@@ -51,7 +54,6 @@ public class Article {
     @ManyToOne(optional = false)
     @JsonManagedReference
     private User user;
-
     public Article() {
 
     }
@@ -84,6 +86,11 @@ public class Article {
     public String getTitle() {
 
         return title;
+    }
+
+    public String getImage() {
+
+        return image;
     }
 
     public void setTitle(String title) {
@@ -139,6 +146,11 @@ public class Article {
     public boolean isFavorited() {
 
         return favorited;
+    }
+
+    public void setImage(String image) {
+
+        this.image = image;
     }
 
     public void setFavorited(boolean favorited) {

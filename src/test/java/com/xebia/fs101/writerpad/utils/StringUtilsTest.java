@@ -2,6 +2,7 @@ package com.xebia.fs101.writerpad.utils;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +16,7 @@ class StringUtilsTest {
     }
 
     @Test
-    public void should_extract_uuid() {
+     void should_extract_uuid() {
         UUID slugUuid = StringUtils.extractUuid("how-to-learn-spring-boot-03bc41f1-2f62-4aba-999e-456d0975300c");
         assertThat(slugUuid).toString().equals("03bc41f1-2f62-4aba-999e-456d0975300c");
     }

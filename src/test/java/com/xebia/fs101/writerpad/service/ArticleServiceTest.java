@@ -30,6 +30,8 @@ class ArticleServiceTest {
     private ArticleRepository articleRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private PlagiarismFinderService plagiarismFinderService;
     @InjectMocks
     private ArticleService articleService;
 
@@ -41,8 +43,7 @@ class ArticleServiceTest {
 
     @Test
     void should_be_able_to_save_an_article() {
-
-       // when(userRepository.findById(any())).thenReturn(Optional.of(new User()));
+        when(plagiarismFinderService.isPlagiarism(any(),any())).thenReturn(false);
         articleService.add(new Article(), new User());
         verify(articleRepository).save(any());
     }
@@ -92,9 +93,12 @@ class ArticleServiceTest {
         when(articleRepository.findById(any())).thenReturn(
                 Optional.of(article));
         when(userRepository.getOne(any())).thenReturn(user);
+        when(plagiarismFinderService.isPlagiarism(any(),any())).thenReturn(false);
+
         articleService.update("id" + UUID.randomUUID(), article, user);
         verify(articleRepository).findById(any());
         verify(articleRepository).save(any());
+        verify(articleRepository).findAll();
         verifyNoMoreInteractions(articleRepository);
     }
 
@@ -103,7 +107,6 @@ class ArticleServiceTest {
 
         String body = IntStream.range(1, 226).mapToObj(String::valueOf).collect(
                 Collectors.joining(" "));
-        System.out.println(body);
         Article article = new Article.Builder().withDescription("description").withTitle(
                 "title").withBody(body).build();
         ArticleService articleService = new ArticleService();

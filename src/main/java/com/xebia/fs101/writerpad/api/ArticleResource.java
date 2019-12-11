@@ -1,5 +1,6 @@
 package com.xebia.fs101.writerpad.api;
 
+import com.xebia.fs101.writerpad.client.UnsplashClient;
 import com.xebia.fs101.writerpad.entity.Article;
 import com.xebia.fs101.writerpad.entity.User;
 import com.xebia.fs101.writerpad.exception.ArticleNotFoundException;
@@ -11,6 +12,7 @@ import com.xebia.fs101.writerpad.service.ArticleService;
 import com.xebia.fs101.writerpad.service.CommentService;
 import com.xebia.fs101.writerpad.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -49,6 +52,10 @@ public class ArticleResource {
     private CommentService commentService;
     @Autowired
     private EmailService emailService;
+    @Value("${unsplash.access.token}")
+    private String clientId;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @GetMapping
     public ResponseEntity<List<Article>> getAll(Pageable pageable) {
@@ -77,12 +84,12 @@ public class ArticleResource {
     create(@AuthenticationPrincipal User user,
            @Valid @RequestBody ArticleRequest articleRequest) {
 
-        Article article = new Article.Builder().
-                withTitle(articleRequest.getTitle()).withBody(
-                articleRequest.getBody()).withDescription(
-                articleRequest.getDescription()).withTags(articleRequest.getTags().
-                stream().map(tag -> tag.replaceAll(" ", "-").toLowerCase()).collect(
-                Collectors.toList())).build();
+        UnsplashClient unsplashClient = restTemplate.getForObject(
+                "https://api.unsplash.com/photos/random/?client_id=" + clientId,
+
+                UnsplashClient.class);
+        Article article = articleRequest.toArticle();
+        article.setImage(unsplashClient.getUrls().getFull());
         Article savedArticle = articleService.add(article, user);
         return new ResponseEntity<>(ArticleResponse.from(savedArticle), CREATED);
     }

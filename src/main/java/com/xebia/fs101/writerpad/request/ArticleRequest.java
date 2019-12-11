@@ -6,6 +6,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ArticleRequest {
     @NotNull
@@ -57,7 +58,9 @@ public class ArticleRequest {
                 .withBody(this.getBody())
                 .withTitle(this.getTitle())
                 .withDescription(this.getDescription())
-                .withTags(this.tags)
+                .withTags(this.tags == null ? new ArrayList<>() : this.tags.stream()
+                        .map(e -> e.replaceAll(" ", "-").toLowerCase())
+                        .collect(Collectors.toList()))
                 .build();
     }
 

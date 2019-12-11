@@ -16,6 +16,7 @@ public class ArticleResponse {
     private Date createdAt = new Date();
     private Date updatedAt;
     private boolean favorited;
+    private String image;
     private long favoritesCount;
     private UserResponse author;
     private ArticleStatus status;
@@ -31,6 +32,7 @@ public class ArticleResponse {
         createdAt = builder.createdAt;
         updatedAt = builder.updatedAt;
         favorited = builder.favorited;
+        image = builder.image;
         favoritesCount = builder.favoritesCount;
         author = builder.author;
         status = builder.status;
@@ -49,6 +51,7 @@ public class ArticleResponse {
                 .withTags(article.getTags())
                 .withTitle(article.getTitle())
                 .withFavoritesCount(article.getFavoritesCount())
+                .withImage(article.getImage())
                 .withFavorited(article.isFavorited())
                 .withStatus(article.getStatus())
                 .build();
@@ -98,6 +101,9 @@ public class ArticleResponse {
 
         return favorited;
     }
+    public String getImage() {
+        return image;
+    }
 
     public long getFavoritesCount() {
 
@@ -116,7 +122,6 @@ public class ArticleResponse {
 
     private static class UserResponse {
         private String username;
-///public removed
          UserResponse(String username) {
 
             this.username = username;
@@ -141,9 +146,14 @@ public class ArticleResponse {
         private boolean favorited;
         private long favoritesCount;
         private UserResponse author;
+        private String  image;
 
         public Builder() {
 
+        }
+        public Builder withImage(String val) {
+            this.image = val;
+            return this;
         }
 
         public Builder withId(String val) {
