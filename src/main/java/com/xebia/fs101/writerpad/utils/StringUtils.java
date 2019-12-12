@@ -25,4 +25,9 @@ public abstract class StringUtils {
             throw new IllegalArgumentException("uuid is not valid");
         }
     }
+
+    public static int getTotalWords(String content) {
+
+        return content.split("\\s+").length;
+    }
 }

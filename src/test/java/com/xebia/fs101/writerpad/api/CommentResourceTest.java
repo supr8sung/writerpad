@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xebia.fs101.writerpad.entity.Article;
 import com.xebia.fs101.writerpad.entity.Comment;
 import com.xebia.fs101.writerpad.entity.User;
+import com.xebia.fs101.writerpad.entity.WriterPadRole;
 import com.xebia.fs101.writerpad.repository.ArticleRepository;
 import com.xebia.fs101.writerpad.repository.CommentRepository;
 import com.xebia.fs101.writerpad.repository.UserRepository;
@@ -67,7 +68,7 @@ class CommentResourceTest {
     void setup() {
 
         UserRequest userRequest = new UserRequest("user", "user useless", "user@mail.com",
-                                                  "1234");
+                                                  "1234", WriterPadRole.WRITER);
         user = userRequest.toUser(passwordEncoder);
         userRepository.save(user);
         ArticleRequest articleRequest = new ArticleRequest.Builder()

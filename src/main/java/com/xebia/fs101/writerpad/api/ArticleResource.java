@@ -8,6 +8,9 @@ import com.xebia.fs101.writerpad.representations.ArticleResponse;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
 import com.xebia.fs101.writerpad.response.ReadingTimeResponse;
 import com.xebia.fs101.writerpad.response.TagsResponse;
+import com.xebia.fs101.writerpad.security.AdminOnly;
+import com.xebia.fs101.writerpad.security.EditorOnly;
+import com.xebia.fs101.writerpad.security.WriterOnly;
 import com.xebia.fs101.writerpad.service.ArticleService;
 import com.xebia.fs101.writerpad.service.CommentService;
 import com.xebia.fs101.writerpad.service.EmailService;
@@ -79,6 +82,7 @@ public class ArticleResource {
         return new ResponseEntity<>(articleResponses, OK);
     }
 
+    @WriterOnly
     @PostMapping
     public ResponseEntity<ArticleResponse>
     create(@AuthenticationPrincipal User user,
@@ -86,7 +90,6 @@ public class ArticleResource {
 
         UnsplashClient unsplashClient = restTemplate.getForObject(
                 "https://api.unsplash.com/photos/random/?client_id=" + clientId,
-
                 UnsplashClient.class);
         Article article = articleRequest.toArticle();
         article.setImage(unsplashClient.getUrls().getFull());
@@ -111,6 +114,7 @@ public class ArticleResource {
         return new ResponseEntity<>(ArticleResponse.from(article), OK);
     }
 
+    @AdminOnly
     @DeleteMapping(path = "/{slug_id}")
     public ResponseEntity<Void> delete(@AuthenticationPrincipal User user,
                                        @PathVariable(value = "slug_id") String slugId) {
@@ -119,8 +123,9 @@ public class ArticleResource {
         return ResponseEntity.noContent().build();
     }
 
+    @EditorOnly
     @PostMapping(path = "/{slug_id}/{status}")
-    public ResponseEntity<Void> articlePublish(
+    public ResponseEntity<Void> publish(
             @PathVariable(value = "slug_id") String slugId, @PathVariable(value =
             "status") String status) throws ExecutionException, InterruptedException {
 

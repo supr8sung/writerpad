@@ -4,13 +4,24 @@ public class ReadingTime {
     private int mins;
     private int seconds;
 
-    public static ReadingTime calculate(String content, int averageTime) {
+    public void setMins(int mins) {
+
+        this.mins = mins;
+    }
+
+    public void setSeconds(int seconds) {
+
+        this.seconds = seconds;
+    }
+        public static ReadingTime calculate(String content, int averageTime) {
 
         ReadingTime readingTime = new ReadingTime();
         int totalWords = content.split("\\s+").length;
         readingTime.mins = totalWords / averageTime;
         double timeInSeconds = (double) (totalWords % averageTime) / averageTime * 60;
         readingTime.seconds = (int) timeInSeconds;
+
+
         return readingTime;
     }
 

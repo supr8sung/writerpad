@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,17 +30,20 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonBackReference
     private List<Article> articles;
+    @Enumerated(value = EnumType.STRING)
+    private WriterPadRole role;
 
     public User() {
 
     }
 
     public User(@NotBlank String username, @NotBlank String email,
-                @NotBlank String password) {
+                @NotBlank String password, @NotBlank WriterPadRole role) {
 
         this.username = username;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
     public User(User user) {
@@ -47,6 +52,7 @@ public class User {
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.password = user.getPassword();
+        this.role = user.getRole();
     }
 
     public String getUsername() {
@@ -62,6 +68,11 @@ public class User {
     public String getPassword() {
 
         return password;
+    }
+
+    public WriterPadRole getRole() {
+
+        return role;
     }
 
     public Long getId() {
@@ -85,6 +96,7 @@ public class User {
         private String userName;
         private String email;
         private String password;
+        private WriterPadRole role;
 
         public Builder() {
 
@@ -93,6 +105,12 @@ public class User {
         public static Builder anUser() {
 
             return new Builder();
+        }
+
+        public Builder withRole(WriterPadRole role) {
+
+            this.role = role;
+            return this;
         }
 
         public Builder withUserId(Long userId) {
@@ -121,7 +139,7 @@ public class User {
 
         public User build() {
 
-            User user = new User(userName, email, password);
+            User user = new User(userName, email, password, role);
             user.id = this.userId;
             return user;
         }

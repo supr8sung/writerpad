@@ -3,6 +3,7 @@ package com.xebia.fs101.writerpad.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xebia.fs101.writerpad.entity.Article;
 import com.xebia.fs101.writerpad.entity.User;
+import com.xebia.fs101.writerpad.entity.WriterPadRole;
 import com.xebia.fs101.writerpad.repository.ArticleRepository;
 import com.xebia.fs101.writerpad.repository.UserRepository;
 import com.xebia.fs101.writerpad.request.ArticleRequest;
@@ -63,7 +64,7 @@ class ArticleResourceTest {
     void setUp() {
 
         UserRequest userRequest = new UserRequest("user", "user useless", "user@mail.com",
-                                                  "1234");
+                                                  "1234", WriterPadRole.WRITER);
         user = userRequest.toUser(passwordEncoder);
         userRepository.save(user);
     }
@@ -137,12 +138,16 @@ class ArticleResourceTest {
 
         Article article = new Article.Builder().withBody("abc").withDescription(
                 "efef").withTitle("fefe").build();
-        article.setUser(user);
+        User user1 = new User.Builder().withUserName("user1").withEmail(
+                "user1@gmail.com").withPassword(passwordEncoder.encode("1234")).withRole(
+                WriterPadRole.ADMIN).build();
+        User editor = userRepository.save(user1);
+        article.setUser(editor);
         Article saved = articleRepository.save(article);
         this.mockMvc.perform(
                 delete("/api/articles/{id}", slugIdGenerator.apply(saved))
                         .contentType(MediaType.APPLICATION_JSON).with(
-                        httpBasic("user", "1234")))
+                        httpBasic("user1", "1234")))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
@@ -268,13 +273,17 @@ class ArticleResourceTest {
     void should_be_able_to_publish_a_article() throws Exception {
 
         Article article = createArticle("title", "body", "description");
-        article.setUser(user);
+        User user1 = new User.Builder().withUserName("user1").withEmail(
+                "user1@gmail.com").withPassword(passwordEncoder.encode("1234")).withRole(
+                WriterPadRole.EDITOR).build();
+        User editor = userRepository.save(user1);
+        article.setUser(editor);
         Article savedArticle = articleRepository.save(article);
         assertThat(savedArticle.getStatus()).isEqualByComparingTo(DRAFT);
         this.mockMvc.perform(post("/api/articles/{slugId}/{status}",
                                   slugIdGenerator.apply(savedArticle), PUBLISHED)
                                      .contentType(MediaType.APPLICATION_JSON).with(
-                        httpBasic("user", "1234")))
+                        httpBasic("user1", "1234")))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
@@ -283,7 +292,11 @@ class ArticleResourceTest {
     void should_give_400_if_blog_already_published() throws Exception {
 
         Article article = createArticle("title", "body", "description");
-        article.setUser(user);
+        User user1 = new User.Builder().withUserName("user1").withEmail(
+                "user1@gmail.com").withPassword(passwordEncoder.encode("1234")).withRole(
+                WriterPadRole.EDITOR).build();
+        User editor = userRepository.save(user1);
+        article.setUser(editor);
         Article savedArticle = articleRepository.save(article);
         assertThat(savedArticle.getStatus()).isEqualByComparingTo(DRAFT);
         savedArticle.publish();
@@ -292,7 +305,7 @@ class ArticleResourceTest {
                 post("/api/articles/{slugId}/{status}", slugIdGenerator.apply(save),
                      PUBLISHED)
                         .contentType(MediaType.APPLICATION_JSON).with(
-                        httpBasic("user", "1234")))
+                        httpBasic("user1", "1234")))
                 .andDo(print()).andExpect(status().isBadRequest());
     }
 
@@ -360,6 +373,8 @@ class ArticleResourceTest {
     void should_be_able_to_mark_an_article_as_unfavourite() throws Exception {
 
         Article article = createArticle("title", "body", "desc");
+
+
         article.setFavoritesCount(4L);
         article.setUser(user);
         Article savedArticle = articleRepository.save(article);
@@ -378,10 +393,10 @@ class ArticleResourceTest {
 
         UserRequest userRequest1 = new UserRequest("user1", "user useless",
                                                    "user1@gmail.com",
-                                                   "1234");
+                                                   "1234", WriterPadRole.WRITER);
         UserRequest userRequest2 = new UserRequest("user2", "user useless",
                                                    "user2@gmail.com",
-                                                   "1234");
+                                                   "1234", WriterPadRole.WRITER);
         User user1 = userRequest1.toUser(passwordEncoder);
         User user2 = userRequest2.toUser(passwordEncoder);
         userRepository.saveAll(Arrays.asList(user1, user2));
@@ -410,10 +425,10 @@ class ArticleResourceTest {
 
         UserRequest userRequest1 = new UserRequest("user1", "user useless",
                                                    "user1@gmail.com",
-                                                   "1234");
+                                                   "1234", WriterPadRole.WRITER);
         UserRequest userRequest2 = new UserRequest("user2", "user useless",
                                                    "user2@gmail.com",
-                                                   "1234");
+                                                   "1234", WriterPadRole.WRITER);
         User user1 = userRequest1.toUser(passwordEncoder);
         User user2 = userRequest2.toUser(passwordEncoder);
         userRepository.saveAll(Arrays.asList(user1, user2));
@@ -464,6 +479,7 @@ class ArticleResourceTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
+
     @Test
     void should_update_article_if_same_user_is_updating_it_without_checking_for_plagiarism() throws Exception {
 
@@ -476,14 +492,32 @@ class ArticleResourceTest {
         ArticleRequest articleRequest = new ArticleRequest.Builder().withBody(
                 "body").withTitle("title").withDescription("desc").build();
         String json = objectMapper.writeValueAsString(articleRequest);
-        this.mockMvc.perform(patch("/api/articles/{slug_id}",slugIdGenerator.apply(savedArticle))
-                                     .contentType(MediaType.APPLICATION_JSON)
-                                     .content(json)
-                                     .with(httpBasic("user", "1234")))
+        this.mockMvc.perform(
+                patch("/api/articles/{slug_id}", slugIdGenerator.apply(savedArticle))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .with(httpBasic("user", "1234")))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+    @Test
+    public void shoulde_not_delete_an_article_if_role_is_not_admin() throws Exception {
 
+        Article article = new Article.Builder().withBody("abc").withDescription(
+                "efef").withTitle("fefe").build();
+        User user1 = new User.Builder().withUserName("user1").withEmail(
+                "user1@gmail.com").withPassword(passwordEncoder.encode("1234")).withRole(
+                WriterPadRole.EDITOR).build();
+        User editor = userRepository.save(user1);
+        article.setUser(editor);
+        Article saved = articleRepository.save(article);
+        this.mockMvc.perform(
+                delete("/api/articles/{id}", slugIdGenerator.apply(saved))
+                        .contentType(MediaType.APPLICATION_JSON).with(
+                        httpBasic("user1", "1234")))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
 
     private Article createArticle(String title, String body, String description) {
 

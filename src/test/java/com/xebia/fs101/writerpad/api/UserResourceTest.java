@@ -2,6 +2,7 @@ package com.xebia.fs101.writerpad.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xebia.fs101.writerpad.entity.User;
+import com.xebia.fs101.writerpad.entity.WriterPadRole;
 import com.xebia.fs101.writerpad.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -36,7 +37,7 @@ class UserResourceTest {
     @Test
     void should_be_able_to_register_a_user() throws Exception {
 
-        User user = new User("supr8sung", "supreet@gmail.com", "daddy");
+        User user = new User("supr8sung", "supreet@gmail.com", "daddy", WriterPadRole.WRITER);
         String json = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/api/users")
                                 .accept(MediaType.APPLICATION_JSON)
@@ -49,7 +50,7 @@ class UserResourceTest {
     //write a test for adding second user
     @Test
     void should_through_bad_request_if_user_already_registered() throws Exception {
-        User user = new User("supr8sung", "supreet@gmail.com", "daddy");
+        User user = new User("supr8sung", "supreet@gmail.com", "daddy",WriterPadRole.WRITER);
         String json = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/api/users")
                                 .accept(MediaType.APPLICATION_JSON)

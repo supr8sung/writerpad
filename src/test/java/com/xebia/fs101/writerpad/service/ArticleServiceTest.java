@@ -102,19 +102,19 @@ class ArticleServiceTest {
         verifyNoMoreInteractions(articleRepository);
     }
 
-    @Test
-    public void should_calulcate_reading_time_for_any_article() {
-
-        String body = IntStream.range(1, 226).mapToObj(String::valueOf).collect(
-                Collectors.joining(" "));
-        Article article = new Article.Builder().withDescription("description").withTitle(
-                "title").withBody(body).build();
-        ArticleService articleService = new ArticleService();
-        articleService.averageTime = 225;
-        ReadingTimeResponse readingTimeResponse = articleService.calculateReadingTime(
-                article);
-        assertThat(readingTimeResponse).isNotNull();
-        assertThat(readingTimeResponse.getReadingTime().getSeconds()).isEqualTo(0);
-        assertThat(readingTimeResponse.getReadingTime().getMins()).isEqualTo(1);
-    }
+//    @Test
+//    public void should_calulcate_reading_time_for_any_article() {
+//
+//        String body = IntStream.range(1, 226).mapToObj(String::valueOf).collect(
+//                Collectors.joining(" "));
+//        Article article = new Article.Builder().withDescription("description").withTitle(
+//                "title").withBody(body).build();
+//        ArticleService articleService = new ArticleService();
+//        articleService.averageTime = 225;
+//        ReadingTimeResponse readingTimeResponse = articleService.calculateReadingTime(
+//                article);
+//        assertThat(readingTimeResponse).isNotNull();
+//        assertThat(readingTimeResponse.getReadingTime().getSeconds()).isEqualTo(0);
+//        assertThat(readingTimeResponse.getReadingTime().getMins()).isEqualTo(1);
+//    }
 }
