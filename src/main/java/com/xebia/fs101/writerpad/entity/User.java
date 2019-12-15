@@ -3,6 +3,7 @@ package com.xebia.fs101.writerpad.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -27,11 +28,16 @@ public class User {
     private String email;
     @NotBlank
     private String password;
+    private boolean following = false;
+    private long followerCount = 0;
+    private long followingCount = 0;
     @OneToMany(mappedBy = "user")
     @JsonBackReference
     private List<Article> articles;
     @Enumerated(value = EnumType.STRING)
     private WriterPadRole role;
+    @ElementCollection
+    private  List<User> followers;
 
     public User() {
 
@@ -53,11 +59,10 @@ public class User {
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.role = user.getRole();
-    }
-
-    public String getUsername() {
-
-        return username;
+        this.following = user.getFollowing();
+        this.followerCount = user.getFollowerCount();
+        this.followingCount = user.getFollowingCount();
+        this.followers=user.getFollowers();
     }
 
     public String getEmail() {
@@ -65,9 +70,14 @@ public class User {
         return email;
     }
 
-    public String getPassword() {
+    public List<User> getFollowers() {
 
-        return password;
+        return followers;
+    }
+
+    public void setFollowers(List<User> followers) {
+
+        this.followers = followers;
     }
 
     public WriterPadRole getRole() {
@@ -78,6 +88,36 @@ public class User {
     public Long getId() {
 
         return id;
+    }
+
+    public String getUsername() {
+
+        return username;
+    }
+
+    public void setFollowing(boolean following) {
+
+        this.following = following;
+    }
+
+    public void setFollowerCount(long followerCount) {
+
+        this.followerCount = followerCount;
+    }
+
+    public void setFollowingCount(long followingCount) {
+
+        this.followingCount = followingCount;
+    }
+
+    public String getPassword() {
+
+        return password;
+    }
+
+    public boolean isFollowing() {
+
+        return following;
     }
 
     @Override
@@ -91,12 +131,33 @@ public class User {
                 + '}';
     }
 
+    public boolean getFollowing() {
+
+        return following;
+    }
+
+    public long getFollowerCount() {
+
+        return followerCount;
+    }
+
+    public long getFollowingCount() {
+
+        return followingCount;
+    }
+
+    public List<Article> getArticles() {
+
+        return articles;
+    }
+
     public static final class Builder {
         private Long userId;
         private String userName;
         private String email;
         private String password;
         private WriterPadRole role;
+        private List<User> followers;
 
         public Builder() {
 
@@ -116,6 +177,11 @@ public class User {
         public Builder withUserId(Long userId) {
 
             this.userId = userId;
+            return this;
+        }
+        public Builder withFollowers(List<User> followers)
+        {
+            this.followers=followers;
             return this;
         }
 

@@ -10,4 +10,5 @@ import javax.transaction.Transactional;
 @Transactional
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByUsernameOrEmail(String userName, String email);
+    User findByUsername(String userName);
 }
