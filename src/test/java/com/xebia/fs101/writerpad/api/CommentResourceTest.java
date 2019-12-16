@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@WithMockUser
+//@WithMockUser
 class CommentResourceTest {
     @Autowired
     MockMvc mockMvc;
@@ -104,7 +104,7 @@ class CommentResourceTest {
         mockMvc.perform(
                 post("/api/articles/{slug_id}/comments", "abc" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+                        .content(json).with(httpBasic("user","1234")))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -116,7 +116,7 @@ class CommentResourceTest {
         String json = objectMapper.writeValueAsString(commentRequest);
         mockMvc.perform(post("/api/articles/{slug_id}/comments", slugId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(json))
+                                .content(json).with(httpBasic("user","1234")))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -128,7 +128,8 @@ class CommentResourceTest {
         Comment savedComment = commentRepository.save(
                 commentRequest.toComment(savedArticle, "ipAdress"));
         mockMvc.perform(delete("/api/articles/{slug_id}/comments/{id}", slugId,
-                               savedComment.getId()))
+                               savedComment.getId())
+        .with(httpBasic("user","1234")))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
@@ -143,7 +144,8 @@ class CommentResourceTest {
                 Arrays.asList(commentRequest1.toComment(savedArticle, "ip1")
                         , commentRequest2.toComment(savedArticle, "ip2")
                         , commentRequest3.toComment(savedArticle, "ip3")));
-        this.mockMvc.perform(get("/api/articles/{slug_id}/comments", slugId))
+        this.mockMvc.perform(get("/api/articles/{slug_id}/comments", slugId)
+        .with(httpBasic("user","1234")))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3));

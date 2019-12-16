@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -72,7 +73,7 @@ public class User {
 
     public List<User> getFollowers() {
 
-        return followers;
+        return followers==null?new ArrayList<User>():followers;
     }
 
     public void setFollowers(List<User> followers) {

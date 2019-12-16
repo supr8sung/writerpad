@@ -15,10 +15,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -69,7 +72,7 @@ class UserResourceTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
         List<User> all = userRepository.findAll();
-        Assertions.assertThat(all.size()).isGreaterThan(0);
+        assertThat(all.size()).isGreaterThan(0);
     }
 
     //write a test for adding second user
@@ -104,12 +107,36 @@ class UserResourceTest {
 
     @Test
     void should_be_able_to_follow_an_user() throws Exception {
-        User user1=new User("kk","kk@gmail.com","abcd",WriterPadRole.WRITER);
-        User user2 =new User("ak","ak@gmail.com","abcd",WriterPadRole.WRITER);
+        User user1=new User("kk","kk@gmail.com",passwordEncoder.encode("abcd"),WriterPadRole.WRITER);
+        User user2 =new User("ak","ak@gmail.com",passwordEncoder.encode("abcd"),WriterPadRole.WRITER);
         userRepository.saveAll(Arrays.asList(user1, user2));
         this.mockMvc.perform(post("/api/profiles/{username}/follow", "ak")
                                      .with(httpBasic("kk", "abcd")))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.followerCount").value(1));
+        User kk = userRepository.findByUsername("kk");
+        assertThat(kk.getFollowingCount()).isEqualTo(1);
+        assertThat(kk.getFollowing()).isTrue();
+    }
+
+    @Test
+    void should_be_able_to_unfollow_an_user() throws  Exception{
+        User user1=new User("kk","kk@gmail.com",passwordEncoder.encode("abcd"),WriterPadRole.WRITER);
+        User user2 =new User("ak","ak@gmail.com",passwordEncoder.encode("abcd"),WriterPadRole.WRITER);
+        userRepository.save(user1);
+        userRepository.save(user2);
+        List<User> followers = user1.getFollowers();
+        followers.add(user2);
+        user2.setFollowers(followers);
+
+        this.mockMvc.perform(delete("/api/profiles/{username}/unfollow", "ak")
+                                     .with(httpBasic("kk", "abcd")))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.followingCount").value(0))
+                .andExpect(jsonPath("$.following").value(false));
+
+
     }
 }

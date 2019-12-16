@@ -1,13 +1,18 @@
 package com.xebia.fs101.writerpad.api;
 
 import com.xebia.fs101.writerpad.entity.Comment;
+import com.xebia.fs101.writerpad.entity.User;
 import com.xebia.fs101.writerpad.request.CommentRequest;
+import com.xebia.fs101.writerpad.security.EditorOnly;
+import com.xebia.fs101.writerpad.security.WriterOnly;
+import com.xebia.fs101.writerpad.security.WriterOrEditorOnly;
 import com.xebia.fs101.writerpad.service.ArticleService;
 import com.xebia.fs101.writerpad.service.CommentService;
 import com.xebia.fs101.writerpad.service.SpamChecker;
 import com.xebia.fs101.writerpad.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +41,8 @@ public class CommentResource {
     private ArticleService articleService;
 
     @PostMapping(path = "{slug_id}/comments")
-    public ResponseEntity add(@PathVariable(value = "slug_id") String slugId,
+    public ResponseEntity create(@AuthenticationPrincipal User user, @PathVariable(value =
+            "slug_id") String slugId,
                               @Valid @RequestBody CommentRequest commentRequest,
                               HttpServletRequest request) throws IOException {
 
@@ -47,15 +53,18 @@ public class CommentResource {
     }
 
     @GetMapping(path = "{slug_id}/comments")
-    public ResponseEntity<List<Comment>> get(@PathVariable(value = "slug_id") String slugId) {
+    public ResponseEntity<List<Comment>> get(@AuthenticationPrincipal User user,
+                                             @PathVariable(value = "slug_id") String slugId) {
 
         List<Comment> comments = commentService.getAll(
                 StringUtils.extractUuid(slugId));
         return new ResponseEntity<>(comments, OK);
     }
 
+    @WriterOnly
     @DeleteMapping(path = "/{slug_id}/comments/{id}")
-    public ResponseEntity<Void> delete(@PathVariable(value = "slug_id") String slugId,
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal User user,
+            @PathVariable(value = "slug_id") String slugId,
                                        @PathVariable(value = "id") Long id) {
 
         commentService.deleteComment(id);

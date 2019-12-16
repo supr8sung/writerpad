@@ -89,13 +89,17 @@ class ArticleResourceTest {
     @Test
     void should_be_able_to_add_article_and_give_status_as_201() throws Exception {
 
+        User admin = new User.Builder().withRole(WriterPadRole.ADMIN).withUserName(
+                "supr8sung").withPassword(passwordEncoder.encode("1234"))
+                .withEmail("supreet@gmail.com").build();
+        userRepository.save(admin);
         ArticleRequest articleRequest =
                 new ArticleRequest.Builder().withTitle("title").withBody(
                         "body").withDescription("description").build();
         String json = objectMapper.writeValueAsString(articleRequest);
         mockMvc.perform(post("/api/articles")
                                 .accept(MediaType.APPLICATION_JSON)
-                                .content(json).with(httpBasic("user", "1234"))
+                                .content(json).with(httpBasic("supr8sung", "1234"))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
@@ -373,8 +377,6 @@ class ArticleResourceTest {
     void should_be_able_to_mark_an_article_as_unfavourite() throws Exception {
 
         Article article = createArticle("title", "body", "desc");
-
-
         article.setFavoritesCount(4L);
         article.setUser(user);
         Article savedArticle = articleRepository.save(article);
@@ -500,6 +502,7 @@ class ArticleResourceTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
     @Test
     public void shoulde_not_delete_an_article_if_role_is_not_admin() throws Exception {
 

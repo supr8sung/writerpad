@@ -2,6 +2,7 @@ package com.xebia.fs101.writerpad.service;
 
 import com.xebia.fs101.writerpad.entity.Article;
 import com.xebia.fs101.writerpad.entity.User;
+import com.xebia.fs101.writerpad.entity.WriterPadRole;
 import com.xebia.fs101.writerpad.exception.ArticleAlreadyCreatedException;
 import com.xebia.fs101.writerpad.exception.ArticleNotFoundException;
 import com.xebia.fs101.writerpad.exception.UserNotAuthorizedException;
@@ -72,7 +73,9 @@ public class ArticleService {
         UUID id = StringUtils.extractUuid(slugId);
         Article article = articleRepository.findById(id).orElseThrow(
                 ArticleNotFoundException::new);
-        if (!article.getUser().equals(userRepository.getOne(user.getId())))
+        if (!(article.getUser().equals(userRepository.getOne(
+                user.getId()))) || !user.getRole().equals(
+                WriterPadRole.ADMIN))
             throw new UserNotAuthorizedException(
                     "User not athorized to delte the article");
         articleRepository.deleteById(id);

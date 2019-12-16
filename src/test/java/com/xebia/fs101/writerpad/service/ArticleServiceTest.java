@@ -2,6 +2,7 @@ package com.xebia.fs101.writerpad.service;
 
 import com.xebia.fs101.writerpad.entity.Article;
 import com.xebia.fs101.writerpad.entity.User;
+import com.xebia.fs101.writerpad.entity.WriterPadRole;
 import com.xebia.fs101.writerpad.repository.ArticleRepository;
 import com.xebia.fs101.writerpad.repository.UserRepository;
 import com.xebia.fs101.writerpad.response.ReadingTimeResponse;
@@ -53,7 +54,7 @@ class ArticleServiceTest {
 
         UUID id = UUID.randomUUID();
         User user = new User.Builder().withPassword("").withEmail("").withUserName(
-                "").build();
+                "").withRole(WriterPadRole.ADMIN).build();
         Article article = new Article.Builder().withBody("").withTitle(
                 "").withDescription("").build();
         article.setUser(user);
