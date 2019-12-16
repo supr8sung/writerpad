@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xebia.fs101.writerpad.entity.User;
 import com.xebia.fs101.writerpad.entity.WriterPadRole;
 import com.xebia.fs101.writerpad.repository.UserRepository;
+import com.xebia.fs101.writerpad.service.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +40,9 @@ class UserResourceTest {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserService userService;
 
     @BeforeEach
     void setup() {
@@ -106,6 +110,32 @@ class UserResourceTest {
     }
 
     @Test
+    void should_be_able_to__return_user_even_if_user_requesting_is_not_authorized() throws Exception {
+        User user=new User.Builder().withRole(WriterPadRole.WRITER)
+                .withPassword(passwordEncoder.encode("abcd"))
+                .withEmail("ab@gmail.com").withUserName("abcd").build();
+        User user1=new User.Builder().withRole(WriterPadRole.WRITER)
+                .withPassword(passwordEncoder.encode("abc"))
+                .withEmail("abc@gmail.com").withUserName("abc").build();
+        User user2=new User.Builder().withRole(WriterPadRole.WRITER)
+                .withPassword(passwordEncoder.encode("ab"))
+                .withEmail("abcd@gmail.com").withUserName("ab").build();
+        User savedUser = userRepository.save(user);
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+        this.mockMvc.perform(post("/api/profiles/{username}/follow", "abcd")
+                                     .with(httpBasic("abc", "abc")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.followerCount").value(1));
+        this.mockMvc.perform(get("/api/profiles/{username}", savedUser.getUsername())
+                .with(httpBasic("ab","ab")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userName").value("abcd"))
+                .andExpect(jsonPath("$.following").value(false))
+                .andExpect(jsonPath("$.followerCount").value(1));
+    }
+    @Test
     void should_be_able_to_follow_an_user() throws Exception {
         User user1=new User("kk","kk@gmail.com",passwordEncoder.encode("abcd"),WriterPadRole.WRITER);
         User user2 =new User("ak","ak@gmail.com",passwordEncoder.encode("abcd"),WriterPadRole.WRITER);
@@ -126,8 +156,8 @@ class UserResourceTest {
         User user2 =new User("ak","ak@gmail.com",passwordEncoder.encode("abcd"),WriterPadRole.WRITER);
         userRepository.save(user1);
         userRepository.save(user2);
-        List<User> followers = user1.getFollowers();
-        followers.add(user2);
+        List<String > followers = user1.getFollowers();
+        followers.add(user2.getUsername());
         user2.setFollowers(followers);
 
         this.mockMvc.perform(delete("/api/profiles/{username}/unfollow", "ak")

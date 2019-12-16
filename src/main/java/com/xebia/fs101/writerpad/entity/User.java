@@ -38,7 +38,7 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private WriterPadRole role;
     @ElementCollection
-    private List<User> followers;
+    private List<String> followers;
 
     public User() {
 
@@ -71,12 +71,12 @@ public class User {
         return email;
     }
 
-    public List<User> getFollowers() {
+    public List<String> getFollowers() {
 
-        return followers == null ? new ArrayList<User>() : followers;
+        return followers == null ? new ArrayList<String>() : followers;
     }
 
-    public void setFollowers(List<User> followers) {
+    public void setFollowers(List<String> followers) {
 
         this.followers = followers;
     }
@@ -158,7 +158,7 @@ public class User {
         private String email;
         private String password;
         private WriterPadRole role;
-        private List<User> followers;
+        private List<String> followers;
 
         public Builder() {
 
@@ -181,7 +181,7 @@ public class User {
             return this;
         }
 
-        public Builder withFollowers(List<User> followers) {
+        public Builder withFollowers(List<String> followers) {
 
             this.followers = followers;
             return this;

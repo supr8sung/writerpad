@@ -24,7 +24,6 @@ import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -42,10 +41,16 @@ public class UserResource {
     }
 
     @GetMapping(path = "/api/profiles/{username}")
-    public ResponseEntity<UserResponse> get(@PathVariable(value = "username") String username) {
+    public ResponseEntity<UserResponse> get(@AuthenticationPrincipal User user,
+                                            @PathVariable(value = "username") String username) {
 
-        User user = userService.findUser(username);
-        return new ResponseEntity<>(UserResponse.from(user), OK);
+        User findUser = userService.findUser(username);
+        if (!Objects.isNull(user)) {
+            if (findUser.getFollowers().contains(user.getUsername()))
+                return new ResponseEntity<>(UserResponse.from(findUser), OK);
+        }
+        findUser.setFollowing(false);
+        return new ResponseEntity<>(UserResponse.from(findUser), OK);
     }
 
     @PostMapping(path = "/api/profiles/{username}/follow")
@@ -55,8 +60,6 @@ public class UserResource {
         if (username.equals(user.getUsername()))
             return ResponseEntity.status(BAD_REQUEST).build();
         User userToBeFollowed = userService.follow(user, username);
-        if (Objects.isNull(userToBeFollowed))
-            return ResponseEntity.status(NOT_FOUND).build();
         return new ResponseEntity<>(UserResponse.from(userToBeFollowed), OK);
     }
 
@@ -67,8 +70,6 @@ public class UserResource {
         if (username.equals(user.getUsername()))
             return ResponseEntity.status(BAD_REQUEST).build();
         User userToBeUnfollowed = userService.unfollow(user, username);
-        if (Objects.isNull(userToBeUnfollowed))
-            return ResponseEntity.status(NOT_FOUND).build();
         return new ResponseEntity<>(UserResponse.from(userToBeUnfollowed), OK);
     }
 

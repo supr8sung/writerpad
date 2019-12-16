@@ -1,6 +1,8 @@
 package com.xebia.fs101.writerpad.config;
 
+import com.xebia.fs101.writerpad.security.JwtTokenSuccessHandler;
 import com.xebia.fs101.writerpad.service.CustomUserDetailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,6 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity//(debug = true)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    private JwtTokenSuccessHandler jwtTokenSuccessHandler;
+
     @Bean
     @Override
     protected UserDetailsService userDetailsService() {
@@ -37,6 +42,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                 .formLogin()
                     .loginPage("/login")
+                    .successHandler(this.jwtTokenSuccessHandler)
                     .permitAll()
                     .and()
                 .logout()
