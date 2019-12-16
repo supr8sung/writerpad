@@ -54,15 +54,14 @@ public class UserService {
         User unfollowingUser = userRepository.findByUsername(user.getUsername());
         if (!isFollower(unfollowingUser, unfollowedUser))
             return unfollowedUser;
-
-        unfollowingUser.setFollowingCount(unfollowingUser.getFollowingCount() -1);
-        if(unfollowingUser.getFollowingCount()==0)
+        unfollowingUser.setFollowingCount(unfollowingUser.getFollowingCount() - 1);
+        if (unfollowingUser.getFollowingCount() == 0)
             unfollowingUser.setFollowing(false);
         userRepository.save(unfollowingUser);
         List<User> followers = unfollowedUser.getFollowers();
         followers.remove(unfollowingUser);
         unfollowedUser.setFollowers(followers);
-        unfollowedUser.setFollowerCount(unfollowedUser.getFollowerCount() -1);
+        unfollowedUser.setFollowerCount(unfollowedUser.getFollowerCount() - 1);
         return userRepository.save(unfollowedUser);
     }
 

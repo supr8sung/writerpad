@@ -3,9 +3,6 @@ package com.xebia.fs101.writerpad.api;
 import com.xebia.fs101.writerpad.entity.Comment;
 import com.xebia.fs101.writerpad.entity.User;
 import com.xebia.fs101.writerpad.request.CommentRequest;
-import com.xebia.fs101.writerpad.security.EditorOnly;
-import com.xebia.fs101.writerpad.security.WriterOnly;
-import com.xebia.fs101.writerpad.security.WriterOrEditorOnly;
 import com.xebia.fs101.writerpad.service.ArticleService;
 import com.xebia.fs101.writerpad.service.CommentService;
 import com.xebia.fs101.writerpad.service.SpamChecker;
@@ -43,8 +40,8 @@ public class CommentResource {
     @PostMapping(path = "{slug_id}/comments")
     public ResponseEntity create(@AuthenticationPrincipal User user, @PathVariable(value =
             "slug_id") String slugId,
-                              @Valid @RequestBody CommentRequest commentRequest,
-                              HttpServletRequest request) throws IOException {
+                                 @Valid @RequestBody CommentRequest commentRequest,
+                                 HttpServletRequest request) throws IOException {
 
         if (spamChecker.isSpam(commentRequest.getBody()))
             return ResponseEntity.status(BAD_REQUEST).build();
@@ -61,10 +58,9 @@ public class CommentResource {
         return new ResponseEntity<>(comments, OK);
     }
 
-    @WriterOnly
     @DeleteMapping(path = "/{slug_id}/comments/{id}")
     public ResponseEntity<Void> delete(@AuthenticationPrincipal User user,
-            @PathVariable(value = "slug_id") String slugId,
+                                       @PathVariable(value = "slug_id") String slugId,
                                        @PathVariable(value = "id") Long id) {
 
         commentService.deleteComment(id);

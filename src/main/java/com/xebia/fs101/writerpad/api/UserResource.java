@@ -3,11 +3,11 @@ package com.xebia.fs101.writerpad.api;
 import com.xebia.fs101.writerpad.entity.User;
 import com.xebia.fs101.writerpad.representations.UserResponse;
 import com.xebia.fs101.writerpad.request.UserRequest;
+import com.xebia.fs101.writerpad.security.AdminOnly;
 import com.xebia.fs101.writerpad.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,7 +33,7 @@ public class UserResource {
     @Autowired
     private UserService userService;
 
-    // @AdminOnly
+    @AdminOnly
     @PostMapping(path = "/api/users")
     public ResponseEntity register(@Valid @RequestBody UserRequest userRequest) {
 

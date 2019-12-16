@@ -21,7 +21,8 @@ public class ApplicationStartupRunner implements CommandLineRunner {
         User admin = userRepository.findByUsernameOrEmail("admin", "admin@writerpad.com");
         if (admin == null) {
             User user = new User.Builder().withRole(WriterPadRole.ADMIN).withPassword(
-                    passwordEncoder.encode("admin@123")).withEmail("admin@writerpad.com").withUserName(
+                    passwordEncoder.encode("admin@123")).withEmail(
+                    "admin@writerpad.com").withUserName(
                     "admin").build();
             userRepository.save(user);
         }
