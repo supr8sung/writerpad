@@ -8,14 +8,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class WriterpadApplicationTests {
-//    @Autowired
-//    private UserRepository userRepository;
-//    @AfterEach
-//    public void tearDown(){
-//        userRepository.deleteAll();
-//    }
-//    @Test
-//    void contextLaod() {
-//
-//    }
+    @Autowired
+    private UserRepository userRepository;
+    @AfterEach
+    public void tearDown(){
+        userRepository.deleteAll();
+    }
+    @Test
+    void contextLaod() {
+
+    }
 }

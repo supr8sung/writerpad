@@ -98,6 +98,7 @@ class ArticleResourceTest {
                         "body").withDescription("description").build();
         String json = objectMapper.writeValueAsString(articleRequest);
         mockMvc.perform(post("/api/articles")
+
                                 .accept(MediaType.APPLICATION_JSON)
                                 .content(json).with(httpBasic("supr8sung", "1234"))
                                 .contentType(MediaType.APPLICATION_JSON))
