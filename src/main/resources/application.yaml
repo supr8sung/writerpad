@@ -1,0 +1,78 @@
+server.servlet.context: /api/
+
+spring:
+  profiles:
+    active: local
+---
+
+spring:
+  application:
+    name: writerpad
+  profiles: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/writerpad
+    username: postgres
+    passoword: localhost
+  jpa:
+    properties:
+      hibernate:
+        show-sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: true
+    hibernate:
+---
+spring:
+  application:
+    name: writerpad
+  profiles: test
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 30
+      idle-timeout: 300000
+      connection-test-query: SELECT 1
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+---
+
+average.words.per.minute: 225
+plagiarism.factor: 0.70
+email:
+  receiver: supreet.singh@xebia.com
+  subject: Congratulations
+  body: You blog is published.
+spring:
+  mail:
+     host: smtp.gmail.com
+     port: 587
+     username: supreetsingh106@gmail.com
+     password: gpdzfxdquydicvdj
+#spring.mail.properties.mail.smtp.auth=true
+#spring.mail.properties.mail.smtp.starttls.enable=true
+unsplash.access.token: df1deb685431c6c5144871867a9d4dec0a3de375cf74a9161b477c726f6db561
+jwt:
+  header: Authorization
+  expires_in: 604800
+  secret: secret
+  cookie: AUTH-TOKEN
+---
+spring:
+  flyway:
+    enabled: false
+    url: jdbc:postgresql://localhost:5432/writerpad
+    user: postgres
+    password: localhost
+    schemas: app-db
+    baseline-on-migrate: true
+    baseline-version=0:
+
+
+
+

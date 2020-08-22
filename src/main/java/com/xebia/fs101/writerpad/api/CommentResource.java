@@ -30,10 +30,13 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequestMapping(path = "/api/articles/")
 public class CommentResource {
+
     @Autowired
     private CommentService commentService;
+
     @Autowired
     private SpamChecker spamChecker;
+
     @Autowired
     private ArticleService articleService;
 

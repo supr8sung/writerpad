@@ -37,18 +37,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                     .antMatchers("/").permitAll()
+                    .antMatchers(HttpMethod.GET,"/api/articles").permitAll()
                     .antMatchers(HttpMethod.GET, "/api/profiles/{username}").permitAll()
-                    .anyRequest().authenticated()
+//                    .anyRequest().authenticated()
                     .and()
-                .formLogin()
-                    .loginPage("/login")
-                    .successHandler(this.jwtTokenSuccessHandler)
-                    .permitAll()
-                    .and()
+//                .formLogin()
+//                    .loginPage("/login")
+//                    .successHandler(this.jwtTokenSuccessHandler)
+//                    .permitAll()
+//                    .and()
                 .logout()
-                    .permitAll()
-                .and()
-                .httpBasic();
+                    .permitAll();
+//                .and()
+//                .httpBasic();
     }
     //@formatter:on
 //

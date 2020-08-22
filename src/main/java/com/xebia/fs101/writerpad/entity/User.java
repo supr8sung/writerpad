@@ -1,6 +1,7 @@
 package com.xebia.fs101.writerpad.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;

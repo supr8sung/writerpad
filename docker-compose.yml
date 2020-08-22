@@ -3,9 +3,9 @@ services:
   database:
     image: "postgres"
     ports:
-      - "5432:5432"
+      - "5432:5434"
     environment:
-      - POSTGRES_PASSWORD=localhost
+      - POSTGRES_PASSWORD=password
 
   web:
     image: writerpad

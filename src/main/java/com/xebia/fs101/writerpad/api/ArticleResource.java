@@ -49,14 +49,19 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RestController
 @RequestMapping("/api/articles")
 public class ArticleResource {
+
     @Autowired
     private ArticleService articleService;
+
     @Autowired
     private CommentService commentService;
+
     @Autowired
     private EmailService emailService;
+
     @Value("${unsplash.access.token}")
     private String clientId;
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -82,7 +87,7 @@ public class ArticleResource {
         return new ResponseEntity<>(articleResponses, OK);
     }
 
-    @WriterOnly
+    //    @WriterOnly
     @PostMapping
     public ResponseEntity<ArticleResponse>
     create(@AuthenticationPrincipal User user,
